@@ -1,0 +1,138 @@
+.TH GLENDY 2
+.SH NAME
+initlevel, pointdir, movedir, domove,
+doput, findglenda, checknext, score1, clac, nextglenda,
+restart, undo, checkstate \- libglendy functions
+.SH SYNOPSIS
+.B #include "engine.h"
+.PP
+.B
+void initlevel(void);
+.PP
+.B
+Point movedir(int dir, Point p);
+.PP
+.B
+int pointdir(Point src, Point dst);
+.PP
+.B
+int domove(int dir, Point p);
+.PP
+.B
+int doput(Point p);
+.PP
+.B
+Point findglenda(void);
+.PP
+.B
+int checknext(int dir, Point p);
+.PP
+.B
+int score1(Point p);
+.PP
+.B
+void calc(void);
+.PP
+.B
+void nextglenda(void);
+.PP
+.B
+void restart(void);
+.PP
+.B
+void undo(void);
+.PP
+.B
+int checkstate(void);
+
+.SH DESCRIPTION
+These functions are used to deal with details of
+.I glendy
+(also known as cat trap)
+and make writing clients easier.
+
+.I initlevel
+sets up the map with glenda always on middle
+and amount of walls based on 
+.I difficulity
+variable,
+.TP 10
+.B DEasy
+	10 ≤ x ≤ 15
+.TP 10
+.B DMed
+	5 ≤ x ≤ 10
+.TP 10
+.B Dhard
+	1 ≤ x ≤ 5
+.TP 10
+.B DImp
+	x = 0
+.PP
+where 
+.B x
+is amount of walls, chosen randomly.
+
+.PP
+.I movedir
+function returns the point
+.I p
+after being moved in
+.I dir
+direction,
+or
+.B {-1, -1}
+in case of invalid input.
+.I pointdir
+is the reverse of
+.I movedir
+function, returning what direction
+.I src
+needs to be moved to reach
+.I dst
+or
+.B Err
+if it can't be reached in one move.
+
+.I domove
+and
+.I doput
+are used by clients to handle actions for glenda
+and trapper (the player who puts the walls).
+they
+returns
+.B Wall
+and
+.B Glenda
+if the cell is not empty.
+.PP
+.I findglenda
+returns first cell which has
+.B Glenda
+inside.
+.I checknext
+is a depracated varient of
+.I pointdir.
+.PP
+.I score1 ,
+.I calc
+and
+.I nextglenda
+are... uh..., functions i guess?
+i don't know what they do. they are supposed to be computer's algorithm,
+please let me know if you know what's going on!
+.PP
+.I restart
+reverts grid layout to
+.B ogrid 
+and sets turn to 0.
+.I undo 
+undos to last move done by tapper, sets
+to
+.B turn - 2.
+it's expected to be buggy, and only works once.
+(further calls to
+.I undo
+reverts the map to orignal state before first call of undo.)
+.I checkstate
+checks whetever game has finished or not, and who has won.

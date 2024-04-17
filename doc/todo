@@ -1,0 +1,90 @@
+infra and documention:
+	- have a mkfile X
+		- cli
+		- documention X
+		- 9 client X
+		- sdl
+		- 9 server
+		- unix server
+	- have a makefile X
+		- documention
+	- write a man page for engine's documention X
+		- make it better!
+			- write info for score1, calc and nextglenda
+		- have one paragraph per each function
+		- add enums and variables
+engine:
+	- move win/lose to engine
+	- make engine.c and engine.h from plan 9 client √
+	- improve portablity √
+		- compiles on plan 9 √
+		- compiles on unix √
+		- compiles on windows, dos?
+	- add turn √
+		- use turn in cli client √
+		- use turn in plan 9 client √
+			- show turn somewhere
+	- domove() check if there are walls there √
+	- move move() to engine √
+		- some client-dependent parts are still in gui9
+	- use dirmove in domove() √
+	- figure what we should do with checknext, should we keep it? it's pretty like domove();
+	- bring turn mangment to engine
+		- undo √
+		- restart √
+		- move √
+		- put √
+	- should we make grid, turn and other stuff private and access them with some wrapper function?
+	- seprate computer player stuff into seprate functions
+	- unix.h √
+		- make sysfatal noreturn √
+
+9 client:
+	- game board often is way smaller than window itself, what gives?
+	- acme/sam colors √ (somewhat)
+		- real ACME™ colors!
+	- undo
+		- ed-style dumb undo √
+		- ed-style smarter? undo
+		- sam-style (∞) undo
+	- multiplayer version √
+		- ok, needs more testing √
+		- even more testing √
+	- net
+	- add flags for multiplayer √
+	- show turn, player somewhere
+
+cli client:
+	- single player 
+	- multiplayer √ (somewhat)
+	- net
+	- zig-zag effect √
+	- fix bugs
+		- SE sometimes goes to east?? √ (it's ok, engine does it)
+		- make map feel hex √ (somewhat)
+			- see if there are any better ways to do so
+	- compile and test? in plan 9 √
+	- compile and test in linux
+	- compile and test in windows(!)
+	- handle (handle what?)
+	- remove m and p, do actions based on turn (NE instead of m NE etc)
+	- undo √
+	- quit √
+
+SDL client:
+	- makefile
+	- compile and test? in plan 9
+	- compile and test in linux
+	- compile and test in windows(!)
+
+network protocol:
+	- define protocol, rfc style?
+	- refrence impl.
+
+plan 9 server:
+	- ???
+
+unix server:
+	- have a barebones version X
+	- pick a port
+	- multithreaded
