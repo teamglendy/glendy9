@@ -1,0 +1,22 @@
+this is a improved version of games/glendy, also known as trap the cat game.
+
+game "engine" can be found in engine.c,
+it handles stuff related to game logic, and leaves client details to clients.
+clients must implment routines for interacting with user (taking input, showing the map).
+
+two clients currently are included, plan 9 client and cli client.
+new features:
+	- ablity to play as glenda
+	- multiplayer (local and networked)
+	- better colors!
+	- cli and sdl clients
+	- game server
+
+game logic is seprated from client details and interface,
+and can be found on engine.[ch], there are also some portablity code
+in unix.c for plan 9 systems.
+
+cli.c and gui9.c contain clients, there is also a server in srv.c
+neither of clients currently support networked multiplayer mode, so srv.c is unused currently :)
+
+there are some documention of engine details in doc.
