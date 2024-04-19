@@ -203,13 +203,15 @@ main(int argc, char **argv)
 	/*
 	 * todo: handle argv properly
 	 */
-
-	/* OpenBSD ignores this
-	 *	srand(time(nil));
-	 */
+	ptype[0] = Human;
+	ptype[1] = Human;
+	/* OpenBSD ignores this */
+	srand(time(nil));
+	 
 	initlevel();
 	drawlevel();
-	while(input() != Err);
+	while(input() != Err)
+		;
 
 	return 0;
 }
