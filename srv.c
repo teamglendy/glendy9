@@ -191,7 +191,7 @@ drawlevel(void)
 		printf("\n");
 
 		/* show column number and have a zig-zag effect */
-		printf("%2d%s |", x, x % 2 ? "" : "| ");
+		printf("%2d%s |", x, x % 2 ? "  " : "");
 
 		for(int y = 0; y < SzY; y++)
 		{
