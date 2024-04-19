@@ -1,0 +1,98 @@
+this is protocol used in networked games,
+currently in early alpha state, and is subject to changes;
+see the following changelog for more info:
+
+2024/04/19:
+	first draft
+
+------
+notes:
+	currently there isn't a way to select settings
+	or if you'd like to play with AI or human,
+	i'd like to later add a handshake message
+	which allows some degree of customizition
+	while also rejecting connections made by "non-clients"
+
+------
+a session begins with a connection to the server,
+you will be greeted with:
+CONN n
+
+where n is the connection number;
+currently, first user gets to play as "the trapper",
+while the second one plays as "the glenda".
+there will be a way to select the player
+you are playing as in next revisions.
+
+afterwards, if there is no players are online to play with,
+you will recieve the following message:
+WAIT
+
+clients SHALL not send any other messages into the connection
+until the servers sends the next message.
+
+once another client have been connected, you will receive:
+INIT
+
+which will indicate a new game has started,
+followed by some lines in the form of:
+w x y
+
+and exactly one:
+g x y
+
+first message means there is an wall in location x, y in the grid.
+while the other one means glenda's location is in x, y in the grid.
+
+once location of glenda and all walls have been sent, you shall recieve:
+SENT
+
+which may be taken for the game start.
+
+next, the player whose turn is to play will be sent:
+TURN
+
+"trapper" is expected to put a wall, in a empty (no glenda nor wall there) cell,
+with the following message:
+p x y
+
+if there is a wall in x, y in the grid, client will be warned with:
+WALL x y
+
+or if glenda is there,
+GLND x y
+
+where x and y is the same as user input, re-printed to aid debugging.
+
+"glenda" shall move in one of six directions NE, E, SE, SW, W, and NW
+(which means, north east, east, south east, south west, west and north west respectively)
+in the following format:
+m d
+
+where D is one of six direction (NE, E, ...)
+after a sucessful move both clients are notified with SYNC message;
+if move have been done by "trapper":
+SYNC t x y
+
+where t is the turn number and x, y are the position of new wall.
+
+if "glenda" have been moved:
+SYNC t d
+
+where t is turn number and d is the direction (NE, E, ...).
+
+game will contiune until either "glenda" manages to escape the map,
+or "trapper" sucessfully traps "glenda". if a game has ended or not is decided by the server.
+
+clients should not end the game before server tells them to do so,
+once the game is over, server will report it as:
+GWON
+
+indicating the glenda have managed to escape
+or
+
+GLOST
+which means glenda is trapped.
+
+once a game is finished, server closes connections to both clients.
+clients willing to play another match must reconnect.
