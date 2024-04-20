@@ -13,78 +13,83 @@ infra and documention:
 			- write info for score1, calc and nextglenda
 		- have one paragraph per each function
 		- add enums and variables
+
 engine:
-	- move win/lose to engine
-	- make engine.c and engine.h from plan 9 client √
-	- improve portablity √
-		- compiles on plan 9 √
-		- compiles on unix √
+	- move win/lose to engine X
+	- make engine.c and engine.h from plan 9 client X
+	- improve portablity X
+		- compiles on plan 9 X
+		- compiles on unix X
 		- compiles on windows, dos?
-	- add turn √
-		- use turn in cli client √
-		- use turn in plan 9 client √
-			- show turn somewhere
-	- domove() check if there are walls there √
-	- move move() to engine √
+	- add turn X
+	- domove() check if there are walls there X
+	- move move() to engine X
 		- some client-dependent parts are still in gui9
-	- use dirmove in domove() √
+	- use dirmove in domove() X
 	- figure what we should do with checknext, should we keep it? it's pretty like domove();
 	- bring turn mangment to engine
-		- undo √
-		- restart √
-		- move √
-		- put √
+		- undo X
+		- restart X
+		- move X
+		- put X
 	- should we make grid, turn and other stuff private and access them with some wrapper function?
 	- seprate computer player stuff into seprate functions
-	- unix.h √
-		- make sysfatal noreturn √
+	- unix.h X
+		- make sysfatal noreturn X
 
 9 client:
 	- game board often is way smaller than window itself, what gives?
-	- acme/sam colors √ (somewhat)
+	- acme/sam colors X (somewhat)
 		- real ACME™ colors!
 	- undo
-		- ed-style dumb undo √
+		- ed-style dumb undo X
 		- ed-style smarter? undo
 		- sam-style (∞) undo
-	- multiplayer version √
-		- ok, needs more testing √
-		- even more testing √
+	- multiplayer version X
+		- ok, needs more testing X
+		- even more testing X
 	- net
-	- add flags for multiplayer √
+	- add flags for multiplayer X
 	- show turn, player somewhere
 
 cli client:
 	- single player 
-	- multiplayer √ (somewhat)
+	- multiplayer X (somewhat)
 	- net
-	- zig-zag effect √
+	- zig-zag effect X
 	- fix bugs
-		- SE sometimes goes to east?? √ (it's ok, engine does it)
-		- make map feel hex √ (somewhat)
+		- SE sometimes goes to east?? X (it's ok, engine does it, client should do zig-zag correctly)
+		- make map feel hex X (somewhat)
 			- see if there are any better ways to do so
-	- compile and test? in plan 9 √
+	- compile and test? in plan 9 X
 	- compile and test in linux
 	- compile and test in windows(!)
 	- handle (handle what?)
 	- remove m and p, do actions based on turn (NE instead of m NE etc)
-	- undo √
-	- quit √
+	- undo X
+	- quit X
 
 SDL client:
+	- write one. [URGENT]
 	- makefile
 	- compile and test? in plan 9
 	- compile and test in linux
 	- compile and test in windows(!)
 
 network protocol:
-	- define protocol, rfc style?
-	- refrence impl.
+	- define protocol, rfc style X
+		- introduce HI msg [URGENT]
+		- introduce session cookies (to resume a disconnected session?) [MED]
+	- refrence impl. of server X
+	- refernce impl. of client [URGENT]
 
 plan 9 server:
-	- ???
+	- write one? (maybe port it from unix server?) [LOW]
 
 unix server:
 	- have a barebones version X
+	- allow multiplayers (4+) to play in the same time
+	- lock values
+	- don't crash once one disconnections
 	- pick a port
 	- multithreaded
