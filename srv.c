@@ -247,10 +247,15 @@ sendlevel(void)
 	else
 	{
 		if(state == Won)
-			printclients("WON\n");
+		{
+			print(sockfd[0], "WON\n");
+			print(sockfd[1], "LOST\n");
+		}
 		else if(state == Lost)
-			printclients("LOST\n");
-			
+		{
+			print(sockfd[0], "LOST\n");
+			print(sockfd[1], "WON\n");
+		}
 		restart(); /* will it execute twice? */
 	}
 }
@@ -275,6 +280,8 @@ proc_put(char *s)
 	r = doput(Pt(x, y)); 
 	if(r == Wall)
 		print(playersock, "WALL %d %d\n", x, y);
+	else if(r == Glenda)
+		print(playersock, "GLND %d %d\n", x y);
 	else
 	{
 		strncpy(syncmsg, s, 8);
@@ -456,7 +463,7 @@ main(int argc, char **argv)
 		;
 	
 	close(listenfd);
-//	pthread_mutex_destroy(&pcount_mutex);
+/	pthread_mutex_destroy(&pcount_mutex);
 //	pthread_mutex_destroy(&print_mutex);
 	return 0;
 }

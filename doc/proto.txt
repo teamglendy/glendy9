@@ -5,6 +5,8 @@ see the following changelog for more info:
 2024/04/19:
 	first draft
 
+2024/04/20:
+	second draft, added explict mentioning of winner and loser
 ------
 notes:
 	currently there isn't a way to select settings
@@ -86,13 +88,12 @@ or "trapper" sucessfully traps "glenda". if a game has ended or not is decided b
 
 clients should not end the game before server tells them to do so,
 once the game is over, server will report it as:
-GWON
+WON
 
-indicating the glenda have managed to escape
-or
+or:
+LOST
 
-GLOST
-which means glenda is trapped.
+on the respective players.
 
 once a game is finished, server closes connections to both clients.
 clients willing to play another match must reconnect.
