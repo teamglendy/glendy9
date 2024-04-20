@@ -34,26 +34,6 @@ pthread_mutex_t pcount_mutex;
  * it might feel odd why it starts from 10,
  * becase then we can just read two bytes to see what's wrong.
  */
-enum
-{
-	GLNDY_CONN = 10,
-	GLNDY_INIT = 11,
-	GLNDY_SYNC,
-	GLNDY_OK,
-	GLNDY_WAIT,
-	
-	GLNDY_TURN,
-	GLNDY_NOTTURN,
-	
-	GLNDY_CANTM,
-	GLNDY_CANTP,
-	GLNDY_INVALIDINPUT,
-	GLNDY_WALL,
-	
-	GLNDY_GWON,
-	GLNDY_GLOST,
-};
-
 static void
 error(const char *msg)
 {
@@ -281,7 +261,7 @@ proc_put(char *s)
 	if(r == Wall)
 		print(playersock, "WALL %d %d\n", x, y);
 	else if(r == Glenda)
-		print(playersock, "GLND %d %d\n", x y);
+		print(playersock, "GLND %d %d\n", x, y);
 	else
 	{
 		strncpy(syncmsg, s, 8);
@@ -463,7 +443,7 @@ main(int argc, char **argv)
 		;
 	
 	close(listenfd);
-/	pthread_mutex_destroy(&pcount_mutex);
+//	pthread_mutex_destroy(&pcount_mutex);
 //	pthread_mutex_destroy(&print_mutex);
 	return 0;
 }
