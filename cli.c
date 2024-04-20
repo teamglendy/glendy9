@@ -79,9 +79,11 @@ proc_put(char *s)
 		fprintf(stderr, "proc_put(): invalid input, x = %d, y = %d\n", x, y);
 		return;
 	}
-
-	if(doput(Pt(x, y)) == Wall)
+	r = doput(Pt(x, y));
+	if(r == Wall)
 		fprintf(stderr, "There is already a wall in x = %d, y = %d\n", x, y);
+	else if(r == Glenda)
+		fprintf(stderr, "You can't put a wall on glenda!\n");
 }
 
 /* m x y */
