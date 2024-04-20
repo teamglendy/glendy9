@@ -1,22 +1,24 @@
 CC=cc
-CFLAGS=-g -O0
-L=\
-	unix.o\
-	engine.o\
+#CFLAGS=-static
 
-all: cli
+Lib=\
+	engine.o\
+	unix.o\
+#	net.o\
+
+Cli=	cli.o
+Srv=	srv.o
+
+all: cli srv
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-cli: ${L}
-	$(CC) $(CFLAGS) -o $@ ${L} cli.c
+cli: ${Cli} ${Lib}
+	$(CC) $(CFLAGS) -o $@ ${Cli} ${Lib}
 
-srv: ${L}
-	$(CC) ${CFLAGS} -o $@ ${L} srv.c
-
-glendy-cli: cli.o ${L}
-	$(LD) $(LDFLAGS) -o $@ ${L} cli.o
+srv: ${Srv} ${Lib}
+	$(CC) $(CFLAGS) -o $@ ${Srv} ${Lib}
 
 clean:
-	rm -f a.out *.8 *.6 *.o cli sdl srv ${L}
+	rm -f *.o *.5 *.6 *.7 *.8 cli srv
