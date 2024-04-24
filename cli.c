@@ -10,7 +10,7 @@
 #include "unix.h"
 #include "engine.h"
 
-char *gface[2] = {"g", "g"}; /* glenda's face(es) */
+char *gface[2] = {"☺", "☺"}; /* glenda's face(es) */
 
 void
 drawlevel(void)
