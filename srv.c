@@ -260,8 +260,10 @@ proc_put(char *s)
 		print(playersock, "GLND %d %d\n", x, y);
 	else
 	{
-		strncpy(syncmsg, s, 8);
-		dprint("syncmsg = %s\n", s);
+		strncpy(syncmsg, s, 7);
+		/* better be safe than sorry */
+		syncmsg[8] = '\0';
+		dprint("syncmsg = %s\n", syncmsg);
 	}
 }
 
@@ -299,7 +301,9 @@ proc_move(char *s)
 	}
 	else
 	{
-		strncpy(syncmsg, s, 8);
+		strncpy(syncmsg, s, 7);
+		/* better be safe than sorry */
+		syncmsg[8] = '\0';
 		dprint("syncmsg =  %s\n", syncmsg);
 	}
 }
