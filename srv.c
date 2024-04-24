@@ -30,10 +30,6 @@ char syncmsg[8];
 pthread_mutex_t pcount_mutex;
 // pthread_mutex_t print_mutex;
 
-/*
- * it might feel odd why it starts from 10,
- * becase then we can just read two bytes to see what's wrong.
- */
 static void
 error(const char *msg)
 {
@@ -380,8 +376,6 @@ input(void)
 	s = malloc(1024);
 
 	print(playersock, "TURN\n");
-
-//	while((c = read(playersock, s + n++, 1)) != '\n' && c != '\0' && n < 1023)
 	
 	memset(s, 0, 1024);
 	while(read(playersock, s+n, 1) == 1 && n < 1024)
