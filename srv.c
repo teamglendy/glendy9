@@ -348,9 +348,11 @@ proc(char *s)
 			else if(turn % 2 == 1)
 				proc_move(s+2);
 			break;
+		/*
 		case 'u':
 			undo();
 			break;
+		*/
 		case 'r':
 			/* maybe we need to put a confirm message here */
 			restart();
