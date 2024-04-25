@@ -1,10 +1,9 @@
 CC=cc
-#CFLAGS=-static
+CFLAGS=-Dunix
 
 Lib=\
 	engine.o\
 	unix.o\
-#	net.o\
 
 Cli=	cli.o
 Srv=	srv.o
