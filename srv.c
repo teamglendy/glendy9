@@ -443,7 +443,7 @@ main(int argc, char **argv)
 		;
 	
 	close(listenfd);
-//	pthread_mutex_destroy(&pcount_mutex);
+	pthread_mutex_destroy(&pcount_mutex);
 //	pthread_mutex_destroy(&print_mutex);
 	return 0;
 }
