@@ -10,7 +10,7 @@
 #include "unix.h"
 #include "engine.h"
 
-char *gface[2] = {"☺", "☺"}; /* glenda's face(es) */
+char *gface[2] = {"☹", "☺"}; /* glenda's face(es) */
 
 void
 drawlevel(void)
@@ -28,6 +28,7 @@ drawlevel(void)
 	{
 		for(int i = 0 ; i < SzY+1 ; i++)
 			printf("----");
+		printf(x % 2 ? "\\" : "/");
 		printf("\n");
 
 		/* show column number and have a zig-zag effect */
