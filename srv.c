@@ -414,11 +414,6 @@ main(int argc, char **argv)
 	ptype[0] = Human;
 	ptype[1] = Human;
 
-	if(argc != 2)
-	{
-		fprintf(stderr, "usage: %s <port>\n", argv[0]);
-		exit(1);
-	}
 	port = 1768;
 	
 	listenfd = setuplistener(port);
