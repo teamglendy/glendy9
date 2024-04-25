@@ -321,7 +321,7 @@ proc_move(char *s)
  * > q
  * quits the game
  */
-void
+int
 proc(char *s)
 {
 	char *t;
@@ -350,17 +350,21 @@ proc(char *s)
 			break;
 		/*
 		case 'u':
-			undo();
+			print(playersock, "ERR not implmented\n");
 			break;
 		*/
 		case 'r':
 			/* maybe we need to put a confirm message here */
-			restart();
+			print(playersock, "ERR not implmented\n");
 			break;
 		case 'q':
 		case '\0':
 			/* should we end the game at this point? XXX important */
-			break;
+			print(playersock, "DIE disconnected\n");
+			print(sockfd[!(turn % 2)], "DIE other client have been disconnected\n");
+			close(sockfd[0]);
+			close(sockfd[1]);
+			return Err;
 		default:
 			print(playersock, "ERR invalidinput %c\n", *s);
 	}
@@ -371,6 +375,7 @@ proc(char *s)
 			drawlevel();
 		sendlevel();
 	}
+	return Ok;
 }
 
 int
@@ -395,8 +400,7 @@ input(void)
 	}
 	dprint("got input: %s\n", s);
 
-	proc(s);
-	return Ok;
+	return proc(s);
 }
 
 int 
@@ -415,7 +419,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "usage: %s <port>\n", argv[0]);
 		exit(1);
 	}
-	port = atoi(argv[1]);
+	port = 1768;
 	
 	listenfd = setuplistener(port);
 	pthread_mutex_init(&pcount_mutex, NULL);
@@ -425,8 +429,7 @@ main(int argc, char **argv)
 	/* OpenBSD ignores this */
 	srand(time(nil));
 	
-	getclients(listenfd);
-	initlevel();
+
 	
 /*	result = pthread_create(&thread, NULL, (void*)input, NULL);
 //	if(result){
@@ -434,14 +437,18 @@ main(int argc, char **argv)
 //                exit(-1);
 //	}
 */
+	for(;;)
+	{
+		getclients(listenfd);
+		initlevel();
+
+		if(debug)
+			drawlevel();
 	
-	if(debug)
-		drawlevel();
-	
-	sendlevel();
-	while(input() != Err)
-		;
-	
+		sendlevel();
+		while(input() != Err)
+			;
+	}
 	close(listenfd);
 	pthread_mutex_destroy(&pcount_mutex);
 //	pthread_mutex_destroy(&print_mutex);
