@@ -18,6 +18,7 @@
 
 #include "unix.h"
 #include "engine.h"
+// #include "srv.h"
 
 #define playersock sockfd[turn % 2]
 
@@ -25,7 +26,6 @@ int pcount = 0;
 int sockfd[2];
 int debug = 1;
 char syncmsg[8];
-
 
 pthread_mutex_t pcount_mutex;
 // pthread_mutex_t print_mutex;
@@ -262,7 +262,7 @@ proc_put(char *s)
 	{
 		strncpy(syncmsg, s, 7);
 		/* better be safe than sorry */
-		syncmsg[8] = '\0';
+		syncmsg[7] = '\0';
 		dprint("syncmsg = %s\n", syncmsg);
 	}
 }
@@ -303,7 +303,7 @@ proc_move(char *s)
 	{
 		strncpy(syncmsg, s, 7);
 		/* better be safe than sorry */
-		syncmsg[8] = '\0';
+		syncmsg[7] = '\0';
 		dprint("syncmsg =  %s\n", syncmsg);
 	}
 }
