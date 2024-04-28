@@ -1,4 +1,4 @@
-this is protocol used in networked games,
+This is the protocol used in networked games,
 currently in early alpha state, and is subject to changes;
 see the following changelog for more info:
 
@@ -7,6 +7,9 @@ see the following changelog for more info:
 
 2024/04/20:
 	second draft, added explict mentioning of winner and loser
+
+2024/04/28:
+	third draft, minor changes
 ------
 notes:
 	currently there isn't a way to select settings
@@ -37,20 +40,19 @@ once another client have been connected, you will receive:
 INIT
 
 which will indicate a new game has started,
-followed by some lines in the form of:
+followed by one or more lines in the form of:
 w x y
 
 and exactly one:
 g x y
 
-first message means there is an wall in location x, y in the grid.
-while the other one means glenda's location is in x, y in the grid.
+first message (w) means there is an wall in location x, y in the grid.
+while the other one (g) means glenda's location is in x, y in the grid.
 
 once location of glenda and all walls have been sent, you shall recieve:
 SENT
 
-which may be taken for the game start.
-
+clients afterwards may announce to the user that, the game has started.
 next, the player whose turn is to play will be sent:
 TURN
 
