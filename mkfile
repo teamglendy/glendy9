@@ -11,7 +11,9 @@ DOC=\
 OFILES=${CFILES:%.c=%.$O}
 HFILES=engine.h
 BIN=/$objtype/bin
-CLEANFILES= doc/*.ps doc/*.pdf
+CLEANFILES= doc/*.ps doc/*.pdf cli srv gui9
+
+all:V: ${CFILES}
 
 doc: $DOC
 	nroff -man doc/glendy2.man > doc/glendy2.txt
