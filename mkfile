@@ -1,5 +1,6 @@
 </$objtype/mkfile
 CFILES=\
+	netclient.c\
 	engine.c\
 	gui9.c\
 
