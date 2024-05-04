@@ -1,6 +1,10 @@
 #include "engine.h"
 #includde "netclient.h"
 
+int waitbit; /* 0 is go, 1 is wait */
+int networked; /* 0 is local, 1 is networked */
+int pside; /* Trapper, Glenda */
+
 int sockfd;
 
 typedef struct
@@ -213,11 +217,11 @@ netproc(Netmsg *msg, char *in)
 	}
 	else if(!strcmp(token[0], "WAIT")
 	{
-		game->wait = 1;
+		game->waitbit = 1;
 	}
 	else if(!strcmp(token[0], "INIT")
 	{
-		game->wait = 0;
+		game->waitbit = 0;
 		game->state = Init;
 		while(games.state == Init)
 		{
@@ -239,9 +243,6 @@ netproc(Netmsg *msg, char *in)
 					grid[p.x][p.y] = Wall;
 					break;
 				case 'g':
-					if(game->glenda != nil)
-						dprint("netproc(): repositioning glenda?\n");
-					
 					tmparr[0] = getpart(tmp, " ", 1);
 					tmparr[1] = getpart(tmp, " ", 2);
 					if(tmparr[0] == nil || tmparr[0])
@@ -268,7 +269,7 @@ netproc(Netmsg *msg, char *in)
 	}
 	else if(!strcmp(token[0], "TURN")
 	{
-		game->wait = 0;
+		game->waitbit = 0;
 	}
 	else if(!strcmp(token[0], "WALL")
 	{
@@ -313,6 +314,7 @@ netproc(Netmsg *msg, char *in)
 	{
 		sysfatal("netproc(): unkown message");
 	}
+	return msg;
 }
 
 char*
