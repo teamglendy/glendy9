@@ -378,9 +378,10 @@ proc(char *s)
 	return Ok;
 }
 
-int
+static int
 input(void)
-{	char *s, c;
+{
+	char *s, c;
 	int n = 0;
 	
 	/* sang bozorg */
