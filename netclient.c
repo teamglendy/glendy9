@@ -1,5 +1,12 @@
+#ifdef unix
+#include "unix.h"
+#else
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+#endif
 #include "engine.h"
-#includde "netclient.h"
+#include "netclient.h"
 
 int waitbit; /* 0 is go, 1 is wait */
 int networked; /* 0 is local, 1 is networked */
@@ -7,12 +14,21 @@ int pside; /* Trapper, Glenda */
 
 int sockfd;
 
-typedef struct
+
+static int
+dprint(char *fmt, ...)
 {
-	char *omsg;
-	char **tokens;
-	int err;
-}Netmsg;
+	va_list va;
+	int n;
+
+	if(!debug)
+		return 0;
+	
+	va_start(va, fmt);
+	n = vfprint(2, fmt, va);
+	va_end(va);
+	return n;
+}
 
 static char*
 dirtostr(int dir)
@@ -36,23 +52,20 @@ dirtostr(int dir)
 	}
 }
 
-/* i miss strntok */
+/* returned value might be nil */
 static char*
-getpart(char *s, char *tok, int n)
+getpart(char *s, char *tok, unsigned int n)
 {
-	char *tmp;
+	char *tmp = nil;
 	
 	for(int i = 0 ; i < n ; i++)
 		tmp = strtok(s, tok);
-	
-	if(tmp == nil)
-		return nil;
 	
 	return tmp;
 }
 
 static int
-isnum(char *s, unsigned int n;)
+isnum(char *s, unsigned int n)
 {
 	if(strlen(s) < n)
 		n = strlen(s);
@@ -98,7 +111,7 @@ movemsg(int dir)
 	if(d != nil)
 	{
 		msg = malloc(8);
-		snprint(msg, "s %s\n", d);
+		sprint(msg, "m %s\n", d);
 		return msg;
 	}
 	else
@@ -137,10 +150,10 @@ parseput(char *x, char *y)
 static char*
 putmsg(int x, int y)
 {
-	char *d, *msg;
+	char *msg;
 
 	msg = malloc(10);
-	snprint(msg, "p %2d %2d\n", itoa(x), itoa(y));
+	sprint(msg, "p %2d %2d\n", x, y);
 	return msg;
 }
 
@@ -180,10 +193,9 @@ netput(int x, int y)
 static void
 netproc(Netmsg *msg, char *in)
 {
-	int dir;
-	int i = 0;
-	int dir;
-	char *tmp, **tmparr;
+	int i = 0, dir;
+	char *tmp, *tmparr[2];
+	
 	char **tokens = malloc(64 * sizeof(char*));;
 	Point p;
 	
@@ -197,33 +209,29 @@ netproc(Netmsg *msg, char *in)
 	msg->ntoken = i;
 	msg->tokens = tokens;
 	msg->err = Ok;
-	if(!strcmp(token[0], "CONN"))
+	if(!strcmp(tokens[0], "CONN"))
 	{
-		if(strlen(token[1]) != 1 || token[1][0] < '0' || token[1][0] > '9')
-		{
-			dprint("odd msg: %s\n", msg.omsg);
-			msg.err = ERR_BADINPUT;
-
-		}
-		switch(atoi(token[1]))
+		switch(atoi(tokens[1]))
 		{
 			case '0':
-				game->pside = PTrapper;
+				pside = PTrapper;
+				break;
 			case '1':
-				game->pside = PGlenda;
+				pside = PGlenda;
+				break;
 			default:
-				sysfatal("invalid conn")
+				sysfatal("invalid conn");
 		}
 	}
-	else if(!strcmp(token[0], "WAIT")
+	else if(!strcmp(tokens[0], "WAIT"))
 	{
-		game->waitbit = 1;
+		waitbit = 1;
 	}
-	else if(!strcmp(token[0], "INIT")
+	else if(!strcmp(tokens[0], "INIT"))
 	{
-		game->waitbit = 0;
-		game->state = Init;
-		while(games.state == Init)
+		waitbit = 0;
+		state = Init;
+		while(state == Init)
 		{
 			tmp = netread();
 			/* lots of assuming goes here,
@@ -235,8 +243,8 @@ netproc(Netmsg *msg, char *in)
 				case 'w':
 					tmparr[0] = getpart(tmp, " ", 1);
 					tmparr[1] = getpart(tmp, " ", 2);
-					if(tmparr[0] == nil || tmparr[0])
-						dprint("netproc(): w tmparr is nil?\n");
+					if(tmparr[0] == nil || tmparr[1] == nil)
+						sysfatal("netproc(): w tmparr is nil?\n");
 					p.x = atoi(tmparr[0]);
 					p.y = atoi(tmparr[1]);
 					
@@ -255,58 +263,58 @@ netproc(Netmsg *msg, char *in)
 					break;
 				default:
 					if(!strcmp("SENT", tmp))
-						game.state = Start
+						state = Start;
 					else
 						dprint("netproc(): unknown command: %s\n", tmp);
 				
 			}
 		}
 	}
-	else if(!strcmp(token[0], "SENT")
+	else if(!strcmp(tokens[0], "SENT"))
 	{
 		/* sent is handled in INIT */
 		dprint("SENT without INIT?\n");
 	}
-	else if(!strcmp(token[0], "TURN")
+	else if(!strcmp(tokens[0], "TURN"))
 	{
-		game->waitbit = 0;
+		waitbit = 0;
 	}
-	else if(!strcmp(token[0], "WALL")
+	else if(!strcmp(tokens[0], "WALL"))
 	{
 		msg->err = Wall;
 	}
-	else if(!strcmp(token[0], "GLND")
+	else if(!strcmp(tokens[0], "GLND"))
 	{
 		msg->err = Glenda;
 	}
-	else if(!strcmp(token[0], "SYNC")
+	else if(!strcmp(tokens[0], "SYNC"))
 	{
-		ifmsg->ntoken < 2)
+		if(msg->ntoken < 2)
 			sysfatal("netproc(): not enough toknes?");
 		
-		if(atoi(msg->token[1] % 2 == 0))
+		if(atoi(msg->tokens[1]) % 2 == 0)
 		{
 			/* trapper's turn is done */
 			if(msg->ntoken != 4)
 				sysfatal("netproc(): not enough tokens to SYNC trapper's move");
 			
-			p = parseput(token[2], token[3]);
+			p = parseput(tokens[2], tokens[3]);
 			doput(p);
 		}
 		else
 		{
-			/* glenda's turn is done */\
-			if(msg->token != 3)
+			/* glenda's turn is done */
+			if(msg->ntoken != 3)
 				sysfatal("netproc(): not enough tokens to SYNC glenda's move");
-			dir = parsemove(token[2]);
+			dir = parsemove(tokens[2]);
 			domove(dir);
 		}
 	}
-	else if(!strcmp(token[0], "WON")
+	else if(!strcmp(tokens[0], "WON"))
 	{
 		msg->err = Won;
 	}
-	else if(!strcmp(token[0], "LOST")
+	else if(!strcmp(tokens[0], "LOST"))
 	{
 		msg->err = Lost;
 	}
@@ -314,7 +322,6 @@ netproc(Netmsg *msg, char *in)
 	{
 		sysfatal("netproc(): unkown message");
 	}
-	return msg;
 }
 
 char*
@@ -336,14 +343,15 @@ netread(void)
 	return s;
 }
 
-Netmsg
+Netmsg*
 netmain(void)
 {
 	Netmsg *msg;
 	char *s;
 	msg = malloc(sizeof(Netmsg));
-	
 
+	s = netread();
 	netproc(msg, s);
+	free(s);
 	return msg;
 }
