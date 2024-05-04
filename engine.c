@@ -147,10 +147,11 @@ movedir(int dir, Point p)
 */
 
 int
-domove(int dir, Point src)
+domove(int dir)
 {
-	Point dst;
-
+	Point src, dst;
+	
+	src = findglenda();
 	if(src.x == 0 || src.x == SzX-1 || src.y == 0 || src.y == SzY-1)
 		goto done;
 
@@ -208,6 +209,8 @@ findglenda(void)
 		for(int y = 0; y < SzY; y++)
 			if(grid[x][y] == 1000)
 				return Pt(x, y);
+				
+	fprint(2, "here");
 	return Pt(-1, -1);
 }
 
@@ -273,7 +276,7 @@ calc(void)
 	for(int i = 0; i < SzX; i++) /* assumes SzX = SzY */
 		for(int x = i; x < SzX-i; x++)
 			for(int y = i; y < SzY-i; y++)
-				if(grid[x][y] != Wall)
+				if(grid[x][y] != Wall && grid[x][y] != Glenda)
 					grid[x][y] = score1(Pt(x, y));
 }
 
@@ -286,8 +289,6 @@ nextglenda(void)
 	calc();
 	calc();
 	calc();
-
-	grid[p.x][p.y] = Glenda;
 	
 	for(dir = NE; dir <= NW; dir++)
 	{
@@ -304,7 +305,7 @@ nextglenda(void)
 	if(min > 100 && min != 999)
 			state = Won;	
 	else if(ptype[1] == Computer)
-		domove(nextdir, p);
+		domove(nextdir);
 
 	if(eqpt(findglenda(), Pt(-1, -1)))
 		state = Lost;

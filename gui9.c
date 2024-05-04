@@ -214,7 +214,7 @@ move(Point m)
 		return;
 
 	/* find the direction to p from our currently pos, then move */
-	domove(dir, g);
+	domove(dir);
 }
 
 void

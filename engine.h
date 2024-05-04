@@ -18,7 +18,7 @@ enum
 	Border = 3,
 
 	/* movement directions */
-	NE,
+	NE = 0,
 	E,
 	SE,
 	SW,
@@ -26,10 +26,15 @@ enum
 	NW,
 
 	/* player types */
-	Human,
+	Human = 0,
 	Computer,
+
+	PTrapper = 0,	
+	PGlenda,
+	PEither,
 	
-	Start = 0, /* game states */
+	Init = 0, /* setting up the map */
+	Start, /* game states */
 	Playing,
 	Won,	
 	Lost,
@@ -38,14 +43,20 @@ enum
 	Wall = 999,
 	Glenda = 1000,
 
+	Err = 0,
 	Ok,
-	Err,
+	
 };
 
 extern int difficulty;
 extern int state;
 extern int turn;
-extern int ptype[2];
+extern int ptype[2]; /* Human or Computer? */
+
+/* we maybe be able to merge all this into one bit-array */
+extern int waitbit; /* 0 is go, 1 is wait */
+extern int networked; /* 0 is local, 1 is networked */
+extern int pside; /* Trapper, Glenda */
 
 extern int grid[SzX][SzY];
 extern int pgrid[SzX][SzY]; /* for undo */
@@ -54,7 +65,7 @@ extern int ogrid[SzX][SzY]; /* so we can restart levels */
 void initlevel(void);
 Point movedir(int dir, Point p);
 int pointdir(Point src, Point dst);
-int domove(int dir, Point p);
+int domove(int dir);
 int doput(Point p);
 Point findglenda(void);
 int checknext(int dir, Point p);
