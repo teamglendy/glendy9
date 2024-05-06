@@ -294,7 +294,7 @@ proc_move(char *s)
 		print(playersock, "ERR invalidinput proc_move(): %s\n", s);
 		return;
 	}
-	if(domove(d, p) == Wall)
+	if(domove(d) == Wall)
 	{
 		print(playersock, "WALL %s %d %d\n", s, p.x, p.y);
 		return;
