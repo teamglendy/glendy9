@@ -92,7 +92,7 @@ dprint(char *fmt, ...)
 int
 setuplistener(int portno)
 {
-	int sockfd;
+	int sockfd, option = 1;
 	struct sockaddr_in serv_addr;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -102,7 +102,8 @@ setuplistener(int portno)
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;	
 	serv_addr.sin_addr.s_addr = INADDR_ANY;	
-	serv_addr.sin_port = htons(portno);		
+	serv_addr.sin_port = htons(portno);	
+	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 
 	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
 		error("ERROR binding listener socket.");
