@@ -112,7 +112,7 @@ proc_move(char *s)
 	}
 	
 	/* should check if there is a wall or something this way */
-	if(domove(d, findglenda()) == Wall)
+	if(domove(d) == Wall)
 	{
 		fprintf(stderr, "There is a wall there!\n");
 		return;
