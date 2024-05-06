@@ -209,8 +209,7 @@ findglenda(void)
 		for(int y = 0; y < SzY; y++)
 			if(grid[x][y] == 1000)
 				return Pt(x, y);
-				
-	fprint(2, "here");
+	
 	return Pt(-1, -1);
 }
 
