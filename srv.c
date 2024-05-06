@@ -202,8 +202,7 @@ sendlevel(void)
 		{
 			for(int y = 0; y < SzY; y++)
 			{
-				/* it's [y][x], not [x][y] */
-				switch(grid[y][x])
+				switch(grid[x][y])
 				{
 					case Wall: 
 						printclients("w %d %d\n", x, y);
