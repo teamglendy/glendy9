@@ -10,6 +10,10 @@ see the following changelog for more info:
 
 2024/04/28:
 	third draft, minor changes
+
+2024/05/06:
+	send WAIT to client who should wait for their turn.
+
 ------
 notes:
 	currently there isn't a way to select settings
@@ -55,6 +59,9 @@ SENT
 clients afterwards may announce to the user that, the game has started.
 next, the player whose turn is to play will be sent:
 TURN
+
+while the other player shall wait until their turn and shall be sent:
+WAIT
 
 "trapper" is expected to put a wall, in a empty (no glenda nor wall there) cell,
 with the following message:
