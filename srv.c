@@ -388,6 +388,7 @@ input(void)
 	s = malloc(1024);
 
 	print(playersock, "TURN\n");
+	print(sockfd[!(turn % 2)], "WAIT\n");
 	
 	memset(s, 0, 1024);
 	while(read(playersock, s+n, 1) == 1 && n < 1024)
