@@ -18,6 +18,7 @@
 
 #include "unix.h"
 #include "engine.h"
+#include "util.h"
 // #include "srv.h"
 
 #define playersock sockfd[turn % 2]
