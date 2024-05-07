@@ -53,12 +53,12 @@ engine:
 	- show turn, player somewhere
 
 cli client:
-	- single player 
+	- single player X
 	- multiplayer X (somewhat)
 	- net
 	- zig-zag effect X
 	- fix bugs
-		- SE sometimes goes to east?? X (it's ok, engine does it, client should do zig-zag correctly)
+		- SE sometimes goes to east?? X (fixed with zig-zag effects)
 		- make map feel hex X (somewhat)
 			- see if there are any better ways to do so
 	- compile and test? in plan 9 X
@@ -70,7 +70,7 @@ cli client:
 	- quit X
 
 SDL client:
-	- write one. [URGENT]
+	- write one.
 	- makefile
 	- compile and test? in plan 9
 	- compile and test in linux
@@ -88,8 +88,8 @@ plan 9 server:
 
 unix server:
 	- have a barebones version X
-	- allow multiplayers (4+) to play in the same time
+	- allow multiplayers (2+) to play in the same time
 	- lock values
-	- don't crash once one disconnections
-	- pick a port
+	- don't crash once one disconnections X
+	- pick a port X (it's 1768)
 	- multithreaded
