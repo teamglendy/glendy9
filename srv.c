@@ -240,10 +240,29 @@ sendlevel(void)
 void
 proc_put(char *s)
 {
-	unsigned int x, y, r;
+	char *xpos, *ypos;
+	unsigned int x, y;
 
-	sscanf(s, "%u %n", &x, &r);
-	sscanf(s+r, "%u", &y);
+	xpos = strtok(s, " ");
+	ypos = strtok(nil, " ");
+	
+	if(xpos == nil || ypos == nil)
+	{
+		print(playersock, "ERR invalidinput proc_put():"
+		"not enough arguments or malformed string\n");
+		return;
+	}
+	
+	if(!isnum(xpos) || !isnum(num))
+	{
+		print(playersock, "ERR invalidinput proc_put():"
+		"expected string in %s and %s\n", xpos, ypos);
+		
+		return;
+	}
+	
+	x = atoi(xpos);
+	y = atoi(ypos);
 	
 	dprint("put %d %d\n", x, y);
 
@@ -260,7 +279,7 @@ proc_put(char *s)
 		print(playersock, "GLND %d %d\n", x, y);
 	else
 	{
-		strncpy(syncmsg, s, 7);
+		sprintf("%u %u", x, y);
 		/* better be safe than sorry */
 		syncmsg[7] = '\0';
 		dprint("syncmsg = %s\n", syncmsg);
