@@ -28,6 +28,7 @@ enum
 	/* player types */
 	Human = 0,
 	Computer,
+	Net,
 
 	PTrapper = 0,	
 	PGlenda,
@@ -45,22 +46,26 @@ enum
 
 	Err = 0,
 	Ok,
-	
 };
 
+/* engine.c */
 extern int difficulty;
 extern int state;
 extern int turn;
 extern int ptype[2]; /* Human or Computer? */
 
+extern int grid[SzX][SzY];
+extern int pgrid[SzX][SzY]; /* for undo */
+extern int ogrid[SzX][SzY]; /* so we can restart levels */
+
+/* client code */
+extern int debug;
+
+/* net.c */
 /* we maybe be able to merge all this into one bit-array */
 extern int waitbit; /* 0 is go, 1 is wait */
 extern int networked; /* 0 is local, 1 is networked */
 extern int pside; /* Trapper, Glenda */
-
-extern int grid[SzX][SzY];
-extern int pgrid[SzX][SzY]; /* for undo */
-extern int ogrid[SzX][SzY]; /* so we can restart levels */
 
 void initlevel(void);
 Point movedir(int dir, Point p);

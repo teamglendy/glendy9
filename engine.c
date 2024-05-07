@@ -7,6 +7,7 @@
 #endif
 
 #include "engine.h"
+#include "netclient.h"
 
 int difficulty = DEasy;
 int state;
@@ -150,21 +151,25 @@ int
 domove(int dir)
 {
 	Point src, dst;
-	
+		
 	src = findglenda();
-	if(src.x == 0 || src.x == SzX-1 || src.y == 0 || src.y == SzY-1)
-		goto done;
-
 	dst = movedir(dir, src);
+
 	if(grid[dst.x][dst.y] == Wall)
 		return Wall;
+
+	if(networked)
+		return netmove(dir);
+
+	if(src.x == 0 || src.x == SzX-1 || src.y == 0 || src.y == SzY-1)
+		goto done;
 
 	grid[dst.x][dst.y] = Glenda;
 done:
 	grid[src.x][src.y] = Prev;
 
 	turn++;
-	return 0;
+	return Ok;
 }
 
 int
@@ -180,6 +185,9 @@ doput(Point p)
 	if(grid[p.x][p.y] == Glenda)
 		return Glenda;
 
+	if(networked)
+		return netput(p.x, p.y);
+	
 	/* take a copy for undo */
 	memcpy(pgrid, grid, sizeof grid);
 	grid[p.x][p.y] = Wall;
