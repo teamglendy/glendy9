@@ -4,6 +4,7 @@ CFLAGS=-Dunix
 Lib=\
 	engine.o\
 	unix.o\
+	util.o\
 
 Cli=	cli.o
 Srv=	srv.o

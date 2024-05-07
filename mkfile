@@ -2,6 +2,7 @@
 CFILES=\
 	netclient.c\
 	engine.c\
+	util.c\
 	gui9.c\
 
 DOC=\
