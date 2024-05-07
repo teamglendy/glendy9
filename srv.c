@@ -241,7 +241,7 @@ void
 proc_put(char *s)
 {
 	char *xpos, *ypos;
-	unsigned int x, y;
+	unsigned int x, y, r;
 
 	xpos = strtok(s, " ");
 	ypos = strtok(nil, " ");
