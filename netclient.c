@@ -7,13 +7,13 @@
 #endif
 #include "engine.h"
 #include "netclient.h"
+#include "util.h"
 
-int waitbit; /* 0 is go, 1 is wait */
-int networked; /* 0 is local, 1 is networked */
+int waitbit = 1; /* 0 is go, 1 is wait */
+int networked = 0; /* 0 is local, 1 is networked */
 int pside; /* Trapper, Glenda */
 
 int sockfd;
-
 
 static int
 dprint(char *fmt, ...)
@@ -31,120 +31,17 @@ dprint(char *fmt, ...)
 }
 
 static char*
-dirtostr(int dir)
-{
-	switch(dir)
-	{
-		case NE:
-			return "NE";
-		case E:
-			return "E";
-		case SE:
-			return "SE";
-		case SW:
-			return "SW";
-		case W:
-			return "W";
-		case NW:
-			return "NW";
-		default:
-			return nil;
-	}
-}
-
-/* returned value might be nil */
-static char*
-getpart(char *s, char *tok, unsigned int n)
-{
-	char *tmp = nil;
-	
-	for(int i = 0 ; i < n ; i++)
-		tmp = strtok(s, tok);
-	
-	return tmp;
-}
-
-static int
-isnum(char *s, unsigned int n)
-{
-	if(strlen(s) < n)
-		n = strlen(s);
-	
-	for(int i = 0 ; i < n ; i++)
-	{
-		if(s[i] > '9' || s[i] < '0')
-			return 0;
-	}
-	return 1;
-}
-
-/* TODO: move to engine.h */
-static int
-parsemove(char *s)
-{
-	int d;
-	
-	if(strcmp(s, "NE") == 0)
-		d = NE;
-	else if(strcmp(s, "E") == 0)
-		d =  E;
-	else if(strcmp(s, "SE") == 0)
-		d = SE;
-	else if(strcmp(s, "W") == 0)
-		d =  W;
-	else if(strcmp(s, "SW") == 0)
-		d = SW;
-	else if(strcmp(s, "NW") == 0)
-		d = NW;
-	else
-		sysfatal("parsemove(): invalid direction");
-
-	return d;
-}
-
-static char*
 movemsg(int dir)
 {
 	char *d, *msg;
 
 	d = dirtostr(dir);
-	if(d != nil)
-	{
-		msg = malloc(8);
-		sprint(msg, "m %s\n", d);
-		return msg;
-	}
-	else
+	if(d == nil)
 		return nil;
-}
-
-/* xx yy\0 */
-/*
-static Point
-parseput(char *s)
-{
-	int x, y;
-	int len;
 	
-	x = atoi(s);
-	s = strchr(s, ' ');
-	if(end == nil)
-	{
-		dprint("parseput(): end nil\n");
-		sysfatal("parseput(): incomplete line");
-	}
-	y = atoi(s);
-	return Pt(x, y);
-}
-*/
-
-static Point
-parseput(char *x, char *y)
-{
-	if(isnum(x, 2) != 1 && isnum(y, 2) != 1)
-		sysfatal("parseput(): input isnt a number?");
-	
-	return Pt(atoi(x), atoi(y));
+	msg = malloc(8);
+	sprint(msg, "m %s\n", d);
+	return msg;
 }
 
 static char*
@@ -152,12 +49,15 @@ putmsg(int x, int y)
 {
 	char *msg;
 
+	if(x > SzX || x < 0 || y > SzY || y < 0)
+		return nil;
+	
 	msg = malloc(10);
-	sprint(msg, "p %2d %2d\n", x, y);
+	sprint(msg, "p %d %d\n", x, y);
 	return msg;
 }
 
-void
+int
 netmove(int dir)
 {
 	int len;
@@ -165,53 +65,61 @@ netmove(int dir)
 
 	msg = movemsg(dir);
 
-	if(msg != nil)
-	{
-		len = strlen(msg);
-		if(write(sockfd, msg, len) < len)
-			sysfatal("netmove(): half written?");
-	}
-	else
-		sysfatal("netmove(): invalid dir?");
+	if(msg == nil)
+		return Err;
+	
+	len = strlen(msg);
+	if(write(sockfd, msg, len) < len)
+		sysfatal("netmove(): half written?");
+	
+	free(msg);
+	return Ok;
 }
 
-void
+int
 netput(int x, int y)
 {
 	int len;
 	char *msg;
 
 	msg = putmsg(x, y);
+	
+	if(msg == nil)
+		return Err;
+	
 	len = strlen(msg);
-
 	if(write(sockfd, msg, len) < len)
-			sysfatal("half written?: %r");
+			sysfatal("netput(): half written?: %r");
 
 	free(msg);
+	return Ok;
 }
 
 static void
 netproc(Netmsg *msg, char *in)
 {
 	int i = 0, dir;
-	char *tmp, *tmparr[2];
+	char *tmp, *xpos, *ypos;
 	
 	char **tokens = malloc(64 * sizeof(char*));;
 	Point p;
 	
 	msg->omsg = strdup(in);
+	dprint("msg->omsg: %s\n", in);
 	
-	do
+	tokens[0] = strtok(in, " ");
+	for(i = 1 ; tokens[i-1] != nil ; i++)
 	{
-		tokens[i] = strtok(in, " ");
-	}while(tokens[i++] != nil);
+		tokens[i] = strtok(nil, " ");
+		fprint(2, "token[%d] = %s\n", i, tokens[i]);
+	}
 	
 	msg->ntoken = i;
 	msg->tokens = tokens;
 	msg->err = Ok;
 	if(!strcmp(tokens[0], "CONN"))
 	{
-		switch(atoi(tokens[1]))
+		switch(*tokens[1])
 		{
 			case '0':
 				pside = PTrapper;
@@ -238,26 +146,27 @@ netproc(Netmsg *msg, char *in)
 			 * messages are in the form of:
 			 * {w,g} xx yy\n
 			 */
+			strtok(tmp, " ");
 			switch(*tmp)
 			{
 				case 'w':
-					tmparr[0] = getpart(tmp, " ", 1);
-					tmparr[1] = getpart(tmp, " ", 2);
-					if(tmparr[0] == nil || tmparr[1] == nil)
-						sysfatal("netproc(): w tmparr is nil?\n");
-					p.x = atoi(tmparr[0]);
-					p.y = atoi(tmparr[1]);
+					xpos = strtok(nil, " ");
+					ypos = strtok(nil, " ");
+					if(xpos == nil || ypos == nil)
+						sysfatal("netproc(): w xpos or ypos is nil?\n");
+					p.x = atoi(xpos);
+					p.y = atoi(ypos);
 					
 					grid[p.x][p.y] = Wall;
 					break;
 				case 'g':
-					tmparr[0] = getpart(tmp, " ", 1);
-					tmparr[1] = getpart(tmp, " ", 2);
-					if(tmparr[0] == nil || tmparr[0])
-						dprint("netproc(): g tmparr is nil?\n");
+					xpos = strtok(nil, " ");
+					ypos = strtok(nil, " ");
+					if(xpos == nil || ypos == nil)
+						dprint("netproc(): g xpos or ypos is nil?\n");
 					
-					p.x = atoi(tmparr[0]);
-					p.y = atoi(tmparr[1]);
+					p.x = atoi(xpos);
+					p.y = atoi(ypos);
 					
 					grid[p.x][p.y] = Glenda;
 					break;
@@ -289,6 +198,8 @@ netproc(Netmsg *msg, char *in)
 	}
 	else if(!strcmp(tokens[0], "SYNC"))
 	{
+		if(state == Start)
+			state = Playing;
 		if(msg->ntoken < 2)
 			sysfatal("netproc(): not enough toknes?");
 		
@@ -331,7 +242,7 @@ netread(void)
 	int n = 0;
 	
 	memset(s, 0, 1024);
-	while(read(sockfd, s+n, 1) == 1 && n < 1024)
+	while(read(sockfd, s+n, 1) == 1 && n < 1023)
 	{
 		if(s[n] == '\n' || s[n] == '\0')
 		{
