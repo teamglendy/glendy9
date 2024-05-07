@@ -8,7 +8,7 @@ typedef struct
 
 extern int sockfd;
 
-void netmove(int dir);
-void netput(int x, int y);
+int netmove(int dir);
+int netput(int x, int y);
 char* netread(void);
 Netmsg* netmain(void);
