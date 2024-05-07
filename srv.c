@@ -279,7 +279,7 @@ proc_put(char *s)
 		print(playersock, "GLND %d %d\n", x, y);
 	else
 	{
-		sprintf("%u %u", x, y);
+		sprintf(syncmsg, "%u %u", x, y);
 		/* better be safe than sorry */
 		syncmsg[7] = '\0';
 		dprint("syncmsg = %s\n", syncmsg);
