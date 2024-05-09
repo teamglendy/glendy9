@@ -13,22 +13,7 @@ int waitbit = 1; /* 0 is go, 1 is wait */
 int networked = 0; /* 0 is local, 1 is networked */
 int pside; /* Trapper, Glenda */
 
-int sockfd;
-
-static int
-dprint(char *fmt, ...)
-{
-	va_list va;
-	int n;
-
-	if(!debug)
-		return 0;
-	
-	va_start(va, fmt);
-	n = vfprint(2, fmt, va);
-	va_end(va);
-	return n;
-}
+int srvfd;
 
 static char*
 movemsg(int dir)
@@ -39,7 +24,7 @@ movemsg(int dir)
 	if(d == nil)
 		return nil;
 	
-	msg = malloc(8);
+	msg = (char*)malloc(8);
 	sprint(msg, "m %s\n", d);
 	return msg;
 }
@@ -52,7 +37,7 @@ putmsg(int x, int y)
 	if(x > SzX || x < 0 || y > SzY || y < 0)
 		return nil;
 	
-	msg = malloc(10);
+	msg = (char*)malloc(10);
 	sprint(msg, "p %d %d\n", x, y);
 	return msg;
 }
@@ -69,9 +54,11 @@ netmove(int dir)
 		return Err;
 	
 	len = strlen(msg);
-	if(write(sockfd, msg, len) < len)
+	if(write(srvfd, msg, len) < len)
 		sysfatal("netmove(): half written?");
-	
+
+	/* otherwise client wont read socket to confirm */
+	waitbit = 1;
 	free(msg);
 	return Ok;
 }
@@ -88,9 +75,11 @@ netput(int x, int y)
 		return Err;
 	
 	len = strlen(msg);
-	if(write(sockfd, msg, len) < len)
+	if(write(srvfd, msg, len) < len)
 			sysfatal("netput(): half written?: %r");
 
+	/* otherwise client wont read socket to confirm */
+	waitbit = 1;
 	free(msg);
 	return Ok;
 }
@@ -98,10 +87,10 @@ netput(int x, int y)
 static void
 netproc(Netmsg *msg, char *in)
 {
-	int i = 0, dir;
+	int i, dir;
 	char *tmp, *xpos, *ypos;
 	
-	char **tokens = malloc(64 * sizeof(char*));;
+	char **tokens = (char**)malloc(64 * sizeof(char*));;
 	Point p;
 	
 	msg->omsg = strdup(in);
@@ -111,7 +100,7 @@ netproc(Netmsg *msg, char *in)
 	for(i = 1 ; tokens[i-1] != nil ; i++)
 	{
 		tokens[i] = strtok(nil, " ");
-		fprint(2, "token[%d] = %s\n", i, tokens[i]);
+		dprint("token[%d] = %s\n", i, tokens[i]);
 	}
 	
 	msg->ntoken = i;
@@ -137,7 +126,6 @@ netproc(Netmsg *msg, char *in)
 	}
 	else if(!strcmp(tokens[0], "INIT"))
 	{
-		waitbit = 0;
 		state = Init;
 		while(state == Init)
 		{
@@ -203,23 +191,28 @@ netproc(Netmsg *msg, char *in)
 		if(msg->ntoken < 2)
 			sysfatal("netproc(): not enough toknes?");
 		
+		/* TODO: very ugly hack, get rid of this */
+		networked = 0;
 		if(atoi(msg->tokens[1]) % 2 == 0)
 		{
+			/* glenda's turn is done */
+			if(msg->ntoken < 3)
+				sysfatal("netproc(): not enough tokens to SYNC glenda's move");
+			dir = parsemove(tokens[2]);
+			domove(dir);
+			dprint("in glenda's turn\n");
+		}
+		else
+		{
 			/* trapper's turn is done */
-			if(msg->ntoken != 4)
+			if(msg->ntoken < 4)
 				sysfatal("netproc(): not enough tokens to SYNC trapper's move");
 			
 			p = parseput(tokens[2], tokens[3]);
 			doput(p);
 		}
-		else
-		{
-			/* glenda's turn is done */
-			if(msg->ntoken != 3)
-				sysfatal("netproc(): not enough tokens to SYNC glenda's move");
-			dir = parsemove(tokens[2]);
-			domove(dir);
-		}
+		/* TODO: very ugly hack, get rid of this */
+		networked = 1;
 	}
 	else if(!strcmp(tokens[0], "WON"))
 	{
@@ -242,7 +235,7 @@ netread(void)
 	int n = 0;
 	
 	memset(s, 0, 1024);
-	while(read(sockfd, s+n, 1) == 1 && n < 1023)
+	while(read(srvfd, s+n, 1) == 1 && n < 1023)
 	{
 		if(s[n] == '\n' || s[n] == '\0')
 		{

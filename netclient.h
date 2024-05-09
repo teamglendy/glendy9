@@ -6,7 +6,7 @@ typedef struct
 	int err;
 }Netmsg;
 
-extern int sockfd;
+extern int srvfd;
 
 int netmove(int dir);
 int netput(int x, int y);
