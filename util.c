@@ -8,7 +8,6 @@
 
 #include "engine.h"
 
-
 int
 isnum(char *s, unsigned int n)
 {
@@ -94,4 +93,19 @@ parseput(char *x, char *y)
 		sysfatal("parseput(): input isnt a number?");
 	
 	return Pt(atoi(x), atoi(y));
+}
+
+int
+dprint(char *fmt, ...)
+{
+	va_list va;
+	int n;
+
+	if(!debug)
+		return 0;
+	
+	va_start(va, fmt);
+	n = vfprint(2, fmt, va);
+	va_end(va);
+	return n;
 }
