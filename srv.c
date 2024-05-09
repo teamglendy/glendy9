@@ -39,28 +39,6 @@ error(const char *msg)
 }
 
 static void
-vprint(int fd, char *fmt, va_list arg)
-{
-	char *s = malloc(1024);
-	int n;
-
-	n = vsprintf(s, fmt, arg);
-	if(write(fd, s, n) < n)
-		error("couldn't write\n");
-	free(s);
-}
-
-static void
-print(int fd, char *fmt, ...)
-{
-	va_list arg;
-	va_start(arg, fmt);
-	
-	vprint(fd, fmt, arg);
-	va_end(arg);
-}
-
-static void
 printclients(char *fmt, ...)
 {
 	/* it seems arg gets changed during the first call to vprint, thus we need two */
@@ -69,25 +47,10 @@ printclients(char *fmt, ...)
 	va_start(arg, fmt);
 	va_start(arg2, fmt);
 	
-	vprint(sockfd[0], fmt, arg);
-	vprint(sockfd[1], fmt, arg2);
+	vfprint(sockfd[0], fmt, arg);
+	vfprint(sockfd[1], fmt, arg2);
 	va_end(arg);
 	va_end(arg2);
-}
-
-static int
-dprint(char *fmt, ...)
-{
-	va_list va;
-	int n;
-
-	if(!debug)
-		return 0;
-	
-	va_start(va, fmt);
-	n = vfprintf(stderr, fmt, va);
-	va_end(va);
-	return n;
 }
 
 int
@@ -133,7 +96,7 @@ getclients(int lis_sockfd)
 			error("ERROR accepting a connection from a client.");
 
 		dprint("got connection %d\n", conns);
-		print(sockfd[conns], "CONN %d\n", conns);
+		fprint(sockfd[conns], "CONN %d\n", conns);
 		dprint("client %d connected\n", conns);
 		
 		pthread_mutex_lock(&pcount_mutex);
@@ -143,7 +106,7 @@ getclients(int lis_sockfd)
 
 		if(conns == 0)
 		{
-			print(sockfd[conns], "WAIT\n");
+			fprint(sockfd[conns], "WAIT\n");
 			dprint("someone is gonna wait until they friend comes\n");
 		}
 
@@ -225,13 +188,13 @@ sendlevel(void)
 	{
 		if(state == Won)
 		{
-			print(sockfd[0], "WON\n");
-			print(sockfd[1], "LOST\n");
+			fprint(sockfd[0], "WON\n");
+			fprint(sockfd[1], "LOST\n");
 		}
 		else if(state == Lost)
 		{
-			print(sockfd[0], "LOST\n");
-			print(sockfd[1], "WON\n");
+			fprint(sockfd[0], "LOST\n");
+			fprint(sockfd[1], "WON\n");
 		}
 		restart(); /* will it execute twice? */
 	}
@@ -249,14 +212,14 @@ proc_put(char *s)
 	
 	if(xpos == nil || ypos == nil)
 	{
-		print(playersock, "ERR invalidinput proc_put():"
+		fprint(playersock, "ERR invalidinput proc_put():"
 		"not enough arguments or malformed string\n");
 		return;
 	}
 	
-	if(!isnum(xpos) || !isnum(num))
+	if(!isnum(xpos, strlen(xpos)) || !isnum(ypos, strlen(ypos)))
 	{
-		print(playersock, "ERR invalidinput proc_put():"
+		fprint(playersock, "ERR invalidinput proc_put():"
 		"expected string in %s and %s\n", xpos, ypos);
 		
 		return;
@@ -269,18 +232,18 @@ proc_put(char *s)
 
 	if(x >= SzX || x < 0 || y >= SzY || y < 0)
 	{
-		print(playersock, "ERR invalidinput proc_put(): %d %d\n", x, y);
+		fprint(playersock, "ERR invalidinput proc_put(): %d %d\n", x, y);
 		return;
 	}
 
 	r = doput(Pt(x, y)); 
 	if(r == Wall)
-		print(playersock, "WALL %d %d\n", x, y);
+		fprint(playersock, "WALL %d %d\n", x, y);
 	else if(r == Glenda)
-		print(playersock, "GLND %d %d\n", x, y);
+		fprint(playersock, "GLND %d %d\n", x, y);
 	else
 	{
-		sprintf(syncmsg, "%u %u", x, y);
+		sprint(syncmsg, "%u %u", x, y);
 		/* better be safe than sorry */
 		syncmsg[7] = '\0';
 		dprint("syncmsg = %s\n", syncmsg);
@@ -311,12 +274,12 @@ proc_move(char *s)
 	else
 	{
 
-		print(playersock, "ERR invalidinput proc_move(): %s\n", s);
+		fprint(playersock, "ERR invalidinput proc_move(): %s\n", s);
 		return;
 	}
 	if(domove(d) == Wall)
 	{
-		print(playersock, "WALL %s %d %d\n", s, p.x, p.y);
+		fprint(playersock, "WALL %s %d %d\n", s, p.x, p.y);
 		return;
 	}
 	else
@@ -360,33 +323,33 @@ proc(char *s)
 			if(turn % 2 == 0)
 				proc_put(s+2);
 			else if(turn % 2 == 1)
-				print(playersock, "CANTP\n");
+				fprint(playersock, "CANTP\n");
 			break;
 		case 'm':
 			if(turn % 2 == 0)
-				print(playersock, "CANTM\n");
+				fprint(playersock, "CANTM\n");
 			else if(turn % 2 == 1)
 				proc_move(s+2);
 			break;
 		/*
 		case 'u':
-			print(playersock, "ERR not implmented\n");
+			fprint(playersock, "ERR not implmented\n");
 			break;
 		*/
 		case 'r':
 			/* maybe we need to put a confirm message here */
-			print(playersock, "ERR not implmented\n");
+			fprint(playersock, "ERR not implmented\n");
 			break;
 		case 'q':
 		case '\0':
 			/* should we end the game at this point? XXX important */
-			print(playersock, "DIE disconnected\n");
-			print(sockfd[!(turn % 2)], "DIE other client have been disconnected\n");
+			fprint(playersock, "DIE disconnected\n");
+			fprint(sockfd[!(turn % 2)], "DIE other client have been disconnected\n");
 			close(sockfd[0]);
 			close(sockfd[1]);
 			return Err;
 		default:
-			print(playersock, "ERR invalidinput %c\n", *s);
+			fprint(playersock, "ERR invalidinput %c\n", *s);
 	}
 	/* only print the map if turn have changed */
 	if(turn != oturn)
@@ -407,8 +370,8 @@ input(void)
 	/* sang bozorg */
 	s = malloc(1024);
 
-	print(playersock, "TURN\n");
-	print(sockfd[!(turn % 2)], "WAIT\n");
+	fprint(playersock, "TURN\n");
+	fprint(sockfd[!(turn % 2)], "WAIT\n");
 	
 	memset(s, 0, 1024);
 	while(read(playersock, s+n, 1) == 1 && n < 1024)
