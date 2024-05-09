@@ -11,6 +11,7 @@
 #include "engine.h"
 
 char *gface[2] = {"☹", "☺"}; /* glenda's face(es) */
+int debug = 0;
 
 void
 drawlevel(void)
