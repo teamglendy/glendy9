@@ -1,10 +1,11 @@
 CC=cc
-CFLAGS=-Dunix
+CFLAGS +=-Dunix
 
 Lib=\
 	engine.o\
 	unix.o\
 	util.o\
+	netclient.o\
 
 Cli=	cli.o
 Srv=	srv.o
