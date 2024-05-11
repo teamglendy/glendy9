@@ -19,22 +19,22 @@ drawlevel(void)
 	int x, y;
 	
 	/* prints first row, this assumes SzX = SzY, is there a better way? */
-	printf("T%2d|", turn);
+	print("T%2d|", turn);
 	for(int i = 0 ; i < SzX ; i++)
-		printf("%2d |", i);
+		print("%2d |", i);
 
-	printf("\n");
+	print("\n");
 
 	for(x = 0; x < SzX; x++)
 	{
 		for(int i = 0 ; i < SzY+1 ; i++)
-			printf("----");
-		printf(x % 2 ? "\\" : "/");
-		printf("\n");
+			print("----");
+		print(x % 2 ? "\\" : "/");
+		print("\n");
 
 		/* show column number and have a zig-zag effect */
-		printf("%2d%s |", x, x % 2 ? "  " : "");
-		// printf("%2d |", x);
+		print("%2d%s |", x, x % 2 ? "  " : "");
+		// print("%2d |", x);
 
 		for(y = 0; y < SzY; y++)
 		{
@@ -42,27 +42,27 @@ drawlevel(void)
 			switch(grid[y][x])
 			{
 				case Wall: 
-					printf(" * |");
+					print(" * |");
 					break;
 				case Glenda:
 					/* fancy effect for glenda's face */
-					printf(" %s |", turn % 2 ? gface[0] : gface[1]);
+					print(" %s |", turn % 2 ? gface[0] : gface[1]);
 					break;
 				default:
-					printf("   |");
+					print("   |");
 					break;
 			}
 		}
-		printf("\n");
+		print("\n");
 	}
 	if(state == Won)
 	{
-		printf("trapper won\n");
+		print("trapper won\n");
 		exits(nil);
 	}
 	else if(state == Lost)
 	{
-		printf("glenda won\n");
+		print("glenda won\n");
 		exits(nil);
 	}
 }
@@ -78,14 +78,14 @@ proc_put(char *s)
 	
 	if(x > SzX || x < 0 || y > SzY || y < 0)
 	{
-		fprintf(stderr, "proc_put(): invalid input, x = %d, y = %d\n", x, y);
+		fprint(2, "proc_put(): invalid input, x = %d, y = %d\n", x, y);
 		return;
 	}
 	r = doput(Pt(x, y));
 	if(r == Wall)
-		fprintf(stderr, "There is already a wall in x = %d, y = %d\n", x, y);
+		fprint(2, "There is already a wall in x = %d, y = %d\n", x, y);
 	else if(r == Glenda)
-		fprintf(stderr, "You can't put a wall on glenda!\n");
+		fprint(2, "You can't put a wall on glenda!\n");
 }
 
 /* m x y */
@@ -108,14 +108,14 @@ proc_move(char *s)
 		d = NW;
 	else
 	{
-		fprintf(stderr, "proc_move(): huh?\n");
+		fprint(2, "proc_move(): huh?\n");
 		return;
 	}
 	
 	/* should check if there is a wall or something this way */
 	if(domove(d) == Wall)
 	{
-		fprintf(stderr, "There is a wall there!\n");
+		fprint(2, "There is a wall there!\n");
 		return;
 	}
 }
@@ -151,11 +151,11 @@ proc(char *s)
 			if(turn % 2 == 0)
 				proc_put(s+2);
 			else if(turn % 2 == 1)
-				fprintf(stderr, "glendy can't put!\n");
+				fprint(2, "glendy can't put!\n");
 			break;
 		case 'm':
 			if(turn % 2 == 0)
-				fprintf(stderr, "trapper can't move!\n");
+				fprint(2, "trapper can't move!\n");
 			else if(turn % 2 == 1)
 				proc_move(s+2);
 			break;
@@ -172,7 +172,7 @@ proc(char *s)
 		case '\0':
 			break;
 		default:
-			fprintf(stderr, "proc(): huh?\n");
+			fprint(2, "proc(): huh?\n");
 	}
 	/* only print the map if turn have changed */
 	if(turn != oturn)
@@ -187,12 +187,12 @@ input(void)
 	/* sang bozorg */
 	s = malloc(1024);
 
-	printf("%s> ", turn % 2 ? "glendy" : "trapper");
+	print("%s> ", turn % 2 ? "glendy" : "trapper");
 	fflush(stdout); /* plan 9 */
 	r = fgets(s, 1024, stdin);
 	if(r == nil)
 	{
-		fprintf(stderr, "input(): error\n");
+		fprint(2, "input(): error\n");
 		return Err;
 	}
 	else
