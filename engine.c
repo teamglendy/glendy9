@@ -6,6 +6,9 @@
 #include <draw.h>
 #endif
 
+// XXX
+#include "util.h"
+
 #include "engine.h"
 #include "netclient.h"
 
@@ -161,9 +164,9 @@ domove(int dir)
 	if(networked)
 		return netmove(dir);
 
-	if(src.x == 0 || src.x == SzX-1 || src.y == 0 || src.y == SzY-1)
+	if(dst.x == 0 || dst.x == SzX-1 || dst.y == 0 || dst.y == SzY-1)
 		goto done;
-
+	
 	grid[dst.x][dst.y] = Glenda;
 done:
 	grid[src.x][src.y] = Prev;
@@ -341,15 +344,4 @@ undo(void)
 	memcpy(g, grid, sizeof grid);
 	memcpy(grid, pgrid, sizeof grid);
 	memcpy(pgrid, g, sizeof grid);
-}
-
-int
-checkstate(void)
-{
-	int i, j;
-	for(i = 0; i < SzX; i++)
-		for(j = 0; j < SzY; j++)
-			if(grid[i][j] == 'E')
-				return 0;
-	return 1;
 }

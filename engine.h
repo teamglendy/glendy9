@@ -79,4 +79,3 @@ void calc(void);
 void nextglenda(void);
 void restart(void);
 void undo(void);
-int checkstate(void);
