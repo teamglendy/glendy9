@@ -215,13 +215,9 @@ netproc(Netmsg *msg, char *in)
 		networked = 1;
 	}
 	else if(!strcmp(tokens[0], "WON"))
-	{
-		msg->err = Won;
-	}
+		state = Won;
 	else if(!strcmp(tokens[0], "LOST"))
-	{
-		msg->err = Lost;
-	}
+		state = Lost;
 	else 
 	{
 		sysfatal("netproc(): unkown message");
