@@ -181,18 +181,19 @@ sendlevel(void)
 	}
 	else if(state == Playing)
 	{
-		dprint("turn: %d\n", turn);
 		printclients("SYNC %d %s\n", turn, syncmsg);
 	}
 	else
 	{
 		if(state == Won)
 		{
+			dprint("hah, trapper won\n");
 			fprint(sockfd[0], "WON\n");
 			fprint(sockfd[1], "LOST\n");
 		}
 		else if(state == Lost)
 		{
+			dprint("welp, trapper lost\n");
 			fprint(sockfd[0], "LOST\n");
 			fprint(sockfd[1], "WON\n");
 		}
@@ -287,7 +288,7 @@ proc_move(char *s)
 		strncpy(syncmsg, s, 7);
 		/* better be safe than sorry */
 		syncmsg[7] = '\0';
-		dprint("syncmsg =  %s\n", syncmsg);
+		dprint("syncmsg = %s\n", syncmsg);
 	}
 }
 
