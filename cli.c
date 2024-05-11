@@ -10,7 +10,7 @@
 #include "unix.h"
 #include "engine.h"
 
-char *gface[2] = {"☹", "☺"}; /* glenda's face(es) */
+char *gface[2] = {"☺", "☹"}; /* glenda's face(es) */
 int debug = 0;
 
 void
@@ -168,6 +168,8 @@ proc(char *s)
 			break;
 		case 'q':
 			exits(nil);
+			break;
+		case '\0':
 			break;
 		default:
 			fprintf(stderr, "proc(): huh?\n");
