@@ -312,9 +312,12 @@ main(int argc, char **argv)
 //	initlevel();	/* must happen before "eresized" */
 	eresized(0);
 
-	netmain(); /* CONN */
-	netmain(); /* SYNC */
-	netmain(); /* TURN/WAIT */
+	if(networked)
+	{
+		netmain(); /* CONN */
+		netmain(); /* SYNC */
+		netmain(); /* TURN/WAIT */
+	}
 	for(;;)
 	{
 		if(networked && waitbit)
