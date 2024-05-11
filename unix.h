@@ -30,3 +30,4 @@ int vsprint(char *out, char *fmt, va_list arg);
 int sprint(char *out, char *fmt, ...);
 int vfprint(int fd, char *fmt, va_list arg);
 int fprint(int fd, char *fmt, ...);
+int print(char *fmt, ...);
