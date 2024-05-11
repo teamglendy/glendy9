@@ -119,20 +119,21 @@ void
 drawlevel(void)
 {
 	/* prints first row, this assumes SzX = SzY, is there a better way? */
-	printf("T%2d|", turn);
+	print("T%2d|", turn);
 	for(int i = 0 ; i < SzX ; i++)
-		printf("%2d |", i);
+		print("%2d |", i);
 
-	printf("\n");
+	print("\n");
 
 	for(int x = 0; x < SzX; x++)
 	{
 		for(int i = 0 ; i < SzY+1 ; i++)
-			printf("----");
-		printf("\n");
+			print("----");
+		print(x % 2 ? "\\" : "/");
+		print("\n");
 
 		/* show column number and have a zig-zag effect */
-		printf("%2d%s |", x, x % 2 ? "  " : "");
+		print("%2d%s |", x, x % 2 ? "  " : "");
 
 		for(int y = 0; y < SzY; y++)
 		{
@@ -140,18 +141,18 @@ drawlevel(void)
 			switch(grid[y][x])
 			{
 				case Wall: 
-					printf(" * |");
+					print(" * |");
 					break;
 				case Glenda:
 					/* fancy effect for glenda's face */
-					printf(" g |");
+					print(" g |");
 					break;
 				default:
-					printf("   |");
+					print("   |");
 					break;
 			}
 		}
-		printf("\n");
+		print("\n");
 	}
 }
 
