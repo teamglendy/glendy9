@@ -9,13 +9,13 @@ new features:
 	- multiplayer (local and networked)
 	- better colors!
 	- cli and sdl clients
-	- game server (WIP)
+	- game server
 
 game logic is seprated from client details and interface,
 and can be found on engine.[ch], there are also some portablity code
-in unix.c for plan 9 systems.
+in unix.c.
 
 cli.c and gui9.c contain clients, there is also a server in srv.c,
-neither of clients currently support networked multiplayer mode, so srv.c is unused currently :)
+neither of clients currently support networked multiplayer mode.
 
 there are some documention of engine details and networked protocol in doc.
