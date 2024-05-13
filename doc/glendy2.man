@@ -41,9 +41,6 @@ void restart(void);
 .PP
 .B
 void undo(void);
-.PP
-.B
-int checkstate(void);
 
 .SH DESCRIPTION
 These functions are used to deal with details of
@@ -134,5 +131,3 @@ it's expected to be buggy, and only works once.
 (further calls to
 .I undo
 reverts the map to orignal state before first call of undo.)
-.I checkstate
-checks whetever game has finished or not, and who has won.
