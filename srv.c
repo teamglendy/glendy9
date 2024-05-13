@@ -23,6 +23,8 @@
 
 #define playersock sockfd[turn % 2]
 
+int listenfd;
+int port = 1768;
 int pcount = 0;
 int sockfd[2];
 int debug = 1;
@@ -294,28 +296,39 @@ proc_move(char *s)
 }
 
 /*
- * handle input, which is in the form of
- * p1> p xx yy
- * which puts a wall in xx yy
- * p2> m {NE, E, SE, W, SW, NW}
- * which moves the bunny
- * > r
- * restarts the game
- * > u
- * undos last move
+ * handle input, which is in the form of:
+ * trapper> p xx yy
+ * puts a wall in xx yy
+ * glenda> m {NE, E, SE, W, SW, NW}
+ * moves the bunny
  * > q
  * quits the game
  */
 int
-proc(char *s)
+proc(char *s, int player)
 {
 	char *t;
 	int oturn, n;
 
-	/* skip \n, so we don't need to process it later */
-	t = strchr(s, '\n');
-	if(t != nil)
-		*t = '\0';
+	/* early return paths */
+	if(*s == '\0' || *s == 'q')
+	{
+		/* should we end the game at this point? XXX important */
+		fprint(playersock, "DIE disconnected\n");
+		fprint(sockfd[!(turn % 2)], "DIE other client have been disconnected\n");
+		
+		/* mmhm... one may wonder what happens if
+		 * we close a fd that happens to be read from? */
+		close(sockfd[0]);
+		close(sockfd[1]);
+		pcount -= 2;
+		return Err;
+	}
+	else if(turn % 2 != player)
+	{
+		fprint(sockfd[player], "WAIT\n");
+		return Ok;
+	}
 
 	oturn = turn;
 	/* s+2 skips command and first space after it */
@@ -333,25 +346,8 @@ proc(char *s)
 			else if(turn % 2 == 1)
 				proc_move(s+2);
 			break;
-		/*
-		case 'u':
-			fprint(playersock, "ERR not implmented\n");
-			break;
-		*/
-		case 'r':
-			/* maybe we need to put a confirm message here */
-			fprint(playersock, "ERR not implmented\n");
-			break;
-		case 'q':
-		case '\0':
-			/* should we end the game at this point? XXX important */
-			fprint(playersock, "DIE disconnected\n");
-			fprint(sockfd[!(turn % 2)], "DIE other client have been disconnected\n");
-			close(sockfd[0]);
-			close(sockfd[1]);
-			return Err;
 		default:
-			fprint(playersock, "ERR invalidinput %c\n", *s);
+			fprint(playersock, "ERR proc() unkown command %c\n", *s);
 	}
 	/* only print the map if turn have changed */
 	if(turn != oturn)
@@ -363,20 +359,17 @@ proc(char *s)
 	return Ok;
 }
 
-static int
-input(void)
+static char*
+input(int player)
 {
 	char *s, c;
 	int n = 0;
 	
 	/* sang bozorg */
 	s = malloc(1024);
-
-	fprint(playersock, "TURN\n");
-	fprint(sockfd[!(turn % 2)], "WAIT\n");
 	
 	memset(s, 0, 1024);
-	while(read(playersock, s+n, 1) == 1 && n < 1024)
+	while(read(sockfd[player], s+n, 1) == 1 && n < 1024)
 	{
 		if(s[n] == '\n' || s[n] == '\0')
 		{
@@ -387,37 +380,33 @@ input(void)
 	}
 	dprint("got input: %s\n", s);
 
-	return proc(s);
+	return s;
 }
 
-int 
-main(int argc, char **argv)
+/* player is either 0 or 1, trapper or glenda */
+static void
+clienthandler(void *player)
 {
-	int listenfd, port, result;
-	char r;
-	pthread_t input_thread;
+	char *s;
+	int p;
+	p = *(int*)player;
 	
-	/* it might not be a real human */
-	ptype[0] = Human;
-	ptype[1] = Human;
-
-	port = 1768;
+	for(;;)
+	{
+		s = input(p);
 	
-	listenfd = setuplistener(port);
-	pthread_mutex_init(&pcount_mutex, NULL);
-	
-	
-	/* OpenBSD ignores this */
-	srand(time(nil));
-	
-
-	
-	result = pthread_create(&input_thread, NULL, (void*)input, NULL);
-	if(result){
-		dprint("Thread creation failed with return code %d\n", result);
-		exit(-1);
+		proc(s, p);
+		free(s);
 	}
+}
 
+static void
+srv(void)
+{
+	int res[2];
+	/* meh. i can't have pointers like &(1) in ANSI */
+	int zero = 0, one = 1;
+	pthread_t p1_thread, p2_thread;
 	for(;;)
 	{
 		getclients(listenfd);
@@ -427,10 +416,40 @@ main(int argc, char **argv)
 			drawlevel();
 	
 		sendlevel();
-		while(input() != Err)
-			;
+		fprint(playersock, "TURN\n");
+		fprint(sockfd[!(turn % 2)], "WAIT\n");
+
+		res[0] = pthread_create(&p1_thread, NULL, (void*)clienthandler, &zero);
+		res[1] = pthread_create(&p2_thread, NULL, (void*)clienthandler, &one);
+		if(res[0] || res[1]){
+			dprint("Thread creation failed with return code %d\n", res[0] ? res[0] : res[1]);
+			exit(-1);
+		}	
+	
 	}
+}
+
+int 
+main(int argc, char **argv)
+{
+	char r;
+	pthread_t input_thread;
+	
+	/* it might not be a real human */
+	ptype[0] = Human;
+	ptype[1] = Human;
+	
+	listenfd = setuplistener(port);
+	pthread_mutex_init(&pcount_mutex, NULL);
+	
+	
+	/* OpenBSD ignores this */
+	srand(time(nil));
+
+	srv();
+	
 	close(listenfd);
 	pthread_mutex_destroy(&pcount_mutex);
+	pthread_exit(NULL);
 	return 0;
 }
