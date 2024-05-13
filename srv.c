@@ -395,7 +395,7 @@ main(int argc, char **argv)
 {
 	int listenfd, port, result;
 	char r;
-//	pthread_t thread;
+	pthread_t input_thread;
 	
 	/* it might not be a real human */
 	ptype[0] = Human;
@@ -405,7 +405,6 @@ main(int argc, char **argv)
 	
 	listenfd = setuplistener(port);
 	pthread_mutex_init(&pcount_mutex, NULL);
-//	pthread_mutex_init(&print_mutex, NULL);
 	
 	
 	/* OpenBSD ignores this */
@@ -413,12 +412,12 @@ main(int argc, char **argv)
 	
 
 	
-/*	result = pthread_create(&thread, NULL, (void*)input, NULL);
-//	if(result){
-//               printf("Thread creation failed with return code %d\n", result);
-//                exit(-1);
-//	}
-*/
+	result = pthread_create(&input_thread, NULL, (void*)input, NULL);
+	if(result){
+		dprint("Thread creation failed with return code %d\n", result);
+		exit(-1);
+	}
+
 	for(;;)
 	{
 		getclients(listenfd);
@@ -433,6 +432,5 @@ main(int argc, char **argv)
 	}
 	close(listenfd);
 	pthread_mutex_destroy(&pcount_mutex);
-//	pthread_mutex_destroy(&print_mutex);
 	return 0;
 }
