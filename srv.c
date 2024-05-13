@@ -326,7 +326,7 @@ proc(char *s, int player)
 	}
 	else if(turn % 2 != player)
 	{
-		fprint(sockfd[player], "WAIT\n");
+		fprint(sockfd[player], "ERR WAIT\n");
 		return Ok;
 	}
 
