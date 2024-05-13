@@ -17,6 +17,9 @@ see the following changelog for more info:
 2024/05/13:
 	send ERR WAIT if a client sends messages (other than q or EOF)
 	outside of their turn
+	
+2024/05/14:
+	insist upon '\n' on writes, ascii → ASCII
 
 ------
 notes:
@@ -27,7 +30,10 @@ notes:
 	while also rejecting connections made by "non-clients"
 
 ------
-a session begins with a connection to the server,
+client and server notice each other of events (e.g, a move) using messages
+messages ALWAYS end in \n (newline, 0xa in ASCII).
+
+A session begins with a connection to the server,
 you will be greeted with:
 CONN n
 
@@ -70,7 +76,7 @@ WAIT
 if client whose turn is to wait, sends a message they will be warned with:
 ERR WAIT
 
-unless the message is q or EOF (0 in ascii), which means the other client is disconnected.
+unless the message is q or EOF (0x0 in ASCII), which means the other client is disconnected.
 
 "trapper" is expected to put a wall, in a empty (no glenda nor wall there) cell,
 with the following message:
