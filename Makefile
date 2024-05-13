@@ -1,5 +1,5 @@
 CC=cc
-CFLAGS +=-Dunix
+CFLAGS +=-Dunix -pthread
 
 Lib=\
 	engine.o\
