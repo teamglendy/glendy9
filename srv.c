@@ -199,9 +199,12 @@ sendlevel(void)
 			dprint("welp, trapper lost\n");
 			fprint(sockfd[0], "LOST\n");
 			fprint(sockfd[1], "WON\n");
+			close(sockfd[0]);
+			close(sockfd[1]);
 		}
-		restart(); /* will it execute twice? */
 	}
+	fprint(playersock, "TURN\n");
+	fprint(sockfd[!(turn % 2)], "WAIT\n");
 }
 
 /* p x y */
@@ -314,8 +317,8 @@ proc(char *s, int player)
 	if(*s == '\0' || *s == 'q')
 	{
 		/* should we end the game at this point? XXX important */
-		fprint(playersock, "DIE disconnected\n");
-		fprint(sockfd[!(turn % 2)], "DIE other client have been disconnected\n");
+		fprint(sockfd[player], "DIE disconnected\n");
+		fprint(sockfd[!player], "DIE other client have been disconnected\n");
 		
 		/* mmhm... one may wonder what happens if
 		 * we close a fd that happens to be read from? */
@@ -414,15 +417,13 @@ srv(void)
 
 		if(debug)
 			drawlevel();
-	
+		
 		sendlevel();
-		fprint(playersock, "TURN\n");
-		fprint(sockfd[!(turn % 2)], "WAIT\n");
-
-		res[0] = pthread_create(&p1_thread, NULL, (void*)clienthandler, &zero);
+		
 		res[1] = pthread_create(&p2_thread, NULL, (void*)clienthandler, &one);
+		res[0] = pthread_create(&p1_thread, NULL, (void*)clienthandler, &zero);
 		if(res[0] || res[1]){
-			dprint("Thread creation failed with return code %d\n", res[0] ? res[0] : res[1]);
+			dprint("pthread_create() failed: %d\n", res[0] ? res[0] : res[1]);
 			exit(-1);
 		}	
 	
@@ -432,9 +433,6 @@ srv(void)
 int 
 main(int argc, char **argv)
 {
-	char r;
-	pthread_t input_thread;
-	
 	/* it might not be a real human */
 	ptype[0] = Human;
 	ptype[1] = Human;
@@ -442,10 +440,9 @@ main(int argc, char **argv)
 	listenfd = setuplistener(port);
 	pthread_mutex_init(&pcount_mutex, NULL);
 	
-	
 	/* OpenBSD ignores this */
 	srand(time(nil));
-
+	
 	srv();
 	
 	close(listenfd);
