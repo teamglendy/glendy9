@@ -18,7 +18,7 @@ enum
 	Border = 3,
 
 	/* movement directions */
-	NE = 0,
+	NE,
 	E,
 	SE,
 	SW,
