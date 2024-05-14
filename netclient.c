@@ -189,7 +189,7 @@ netproc(Netmsg *msg, char *in)
 			/* glenda's turn is done */
 			if(msg->ntoken < 3)
 				sysfatal("netproc(): not enough tokens to SYNC glenda's move");
-			dir = parsemove(tokens[2]);
+			dir = strtodir(tokens[2]);
 			domove(dir);
 			dprint("in glenda's turn\n");
 		}
