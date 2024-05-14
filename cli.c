@@ -172,7 +172,7 @@ proc(char *s)
 		case '\0':
 			break;
 		default:
-			fprint(2, "proc(): huh?\n");
+			fprint(2, "unknown command\n");
 	}
 	/* only print the map if turn have changed */
 	if(turn != oturn)
@@ -181,15 +181,12 @@ proc(char *s)
 
 int
 input(void)
-{	char *s, *r;
+{	char s[32], *r;
 	int t;
-	
-	/* sang bozorg */
-	s = malloc(1024);
 
 	print("%s> ", turn % 2 ? "glendy" : "trapper");
 	fflush(stdout); /* plan 9 */
-	r = fgets(s, 1024, stdin);
+	r = fgets(s, 32, stdin);
 	if(r == nil)
 	{
 		fprint(2, "input(): error\n");

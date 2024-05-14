@@ -117,7 +117,7 @@ emalloc(unsigned long n)
 
 	p = malloc(n);
 	if(p == nil)
-		sysfatal("mallocz: %r");
+		sysfatal("malloc: %r");
 	
 	return p;	
 }

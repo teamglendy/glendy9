@@ -24,7 +24,7 @@ movemsg(int dir)
 	if(d == nil)
 		return nil;
 	
-	msg = (char*)malloc(8);
+	msg = (char*)emalloc(8);
 	sprint(msg, "m %s\n", d);
 	return msg;
 }
@@ -37,7 +37,7 @@ putmsg(int x, int y)
 	if(x > SzX || x < 0 || y > SzY || y < 0)
 		return nil;
 	
-	msg = (char*)malloc(10);
+	msg = (char*)emalloc(10);
 	sprint(msg, "p %d %d\n", x, y);
 	return msg;
 }
@@ -89,7 +89,7 @@ netproc(Netmsg *msg, char *in)
 {
 	int i, dir;
 	char *tmp, *xpos, *ypos;
-	char **tokens = (char**)malloc(64 * sizeof(char*));;
+	char **tokens = (char**)emalloc(64 * sizeof(char*));
 	Point p;
 	
 	msg->omsg = strdup(in);
