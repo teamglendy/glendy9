@@ -23,7 +23,7 @@ isnum(char *s, unsigned int n)
 }
 
 int
-parsemove(char *s)
+strtodir(char *s)
 {
 	int d;
 	
