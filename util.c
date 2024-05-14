@@ -40,7 +40,7 @@ parsemove(char *s)
 	else if(strcmp(s, "NW") == 0)
 		d = NW;
 	else
-		sysfatal("parsemove(): invalid direction");
+		return Err;
 
 	return d;
 }

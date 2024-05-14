@@ -265,25 +265,14 @@ proc_move(char *s)
 	Point p;
 	
 	p = findglenda();
-
-	if(strcmp(s, "NE") == 0)
-		d = NE;
-	else if(strcmp(s, "E") == 0)
-		d =  E;
-	else if(strcmp(s, "SE") == 0)
-		d = SE;
-	else if(strcmp(s, "W") == 0)
-		d =  W;
-	else if(strcmp(s, "SW") == 0)
-		d = SW;
-	else if(strcmp(s, "NW") == 0)
-		d = NW;
-	else
+	d = strtodir(s);
+	
+	if(d == Err)
 	{
-
 		fprint(playersock, "ERR invalidinput proc_move(): %s\n", s);
 		return;
 	}
+	
 	if(domove(d) == Wall)
 	{
 		fprint(playersock, "WALL %s %d %d\n", s, p.x, p.y);
