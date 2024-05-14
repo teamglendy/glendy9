@@ -33,7 +33,7 @@ static char*
 putmsg(int x, int y)
 {
 	char *msg;
-
+	dprint("putmsg(%d, %d)\n", x, y);
 	if(x > SzX || x < 0 || y > SzY || y < 0)
 		return nil;
 	
@@ -89,7 +89,6 @@ netproc(Netmsg *msg, char *in)
 {
 	int i, dir;
 	char *tmp, *xpos, *ypos;
-	
 	char **tokens = (char**)malloc(64 * sizeof(char*));;
 	Point p;
 	
@@ -98,10 +97,7 @@ netproc(Netmsg *msg, char *in)
 	
 	tokens[0] = strtok(in, " ");
 	for(i = 1 ; tokens[i-1] != nil ; i++)
-	{
 		tokens[i] = strtok(nil, " ");
-		dprint("token[%d] = %s\n", i, tokens[i]);
-	}
 	
 	msg->ntoken = i;
 	msg->tokens = tokens;
@@ -121,9 +117,8 @@ netproc(Netmsg *msg, char *in)
 		}
 	}
 	else if(!strcmp(tokens[0], "WAIT"))
-	{
 		waitbit = 1;
-	}
+
 	else if(!strcmp(tokens[0], "INIT"))
 	{
 		state = Init;
@@ -162,28 +157,24 @@ netproc(Netmsg *msg, char *in)
 					if(!strcmp("SENT", tmp))
 						state = Start;
 					else
-						dprint("netproc(): unknown command: %s\n", tmp);
+						dprint("netproc(): Init: unknown command: %s\n", tmp);
 				
 			}
 		}
 	}
 	else if(!strcmp(tokens[0], "SENT"))
-	{
 		/* sent is handled in INIT */
 		dprint("SENT without INIT?\n");
-	}
+	
 	else if(!strcmp(tokens[0], "TURN"))
-	{
 		waitbit = 0;
-	}
+	
 	else if(!strcmp(tokens[0], "WALL"))
-	{
 		msg->err = Wall;
-	}
+	
 	else if(!strcmp(tokens[0], "GLND"))
-	{
 		msg->err = Glenda;
-	}
+	
 	else if(!strcmp(tokens[0], "SYNC"))
 	{
 		if(state == Start)
@@ -216,12 +207,12 @@ netproc(Netmsg *msg, char *in)
 	}
 	else if(!strcmp(tokens[0], "WON"))
 		state = Won;
+	
 	else if(!strcmp(tokens[0], "LOST"))
 		state = Lost;
+	
 	else 
-	{
 		sysfatal("netproc(): unkown message");
-	}
 }
 
 char*
