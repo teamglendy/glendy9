@@ -109,3 +109,15 @@ dprint(char *fmt, ...)
 	va_end(va);
 	return n;
 }
+
+void*
+emalloc(unsigned long n)
+{
+	void *p;
+
+	p = malloc(n);
+	if(p == nil)
+		sysfatal("mallocz: %r");
+	
+	return p;	
+}
