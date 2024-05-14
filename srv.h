@@ -1,16 +1,13 @@
-typedef struct
-{
-	int fd;
-	char[16] cookie;
-
-}Client;
+extern int id;
+extern int sockfd[2];
 
 typedef struct
 {
 	int id;
-	List msgs;
+	int difficulty;
 	int state;
 	int turn;
-	Client player[2];
+	int sockfd[2];
 	int grid[SzX][SzY];
+	char syncmsg[8];
 }Game;
