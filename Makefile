@@ -8,9 +8,10 @@ Lib=\
 	netclient.o\
 
 Cli=	cli.o
-Srv=	srv4.o
+Srv4=	srv4.o
+Srv=	srv.o
 
-all: cli srv
+all: cli srv4
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -18,7 +19,10 @@ all: cli srv
 cli: ${Cli} ${Lib}
 	$(CC) $(CFLAGS) -o $@ ${Cli} ${Lib}
 
-srv4: ${Srv} ${Lib}
+srv4: ${Srv4} ${Lib}
+	$(CC) $(CFLAGS) -o $@ ${Srv4} ${Lib}
+
+srv: ${Srv} ${Lib}
 	$(CC) $(CFLAGS) -o $@ ${Srv} ${Lib}
 
 clean:
