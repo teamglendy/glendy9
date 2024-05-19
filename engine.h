@@ -1,3 +1,5 @@
+#define isplaying (state == Playing || state == Start)
+
 enum
 {
 	/* difficulty levels (how many circles are initially occupied) */
