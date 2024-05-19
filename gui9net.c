@@ -320,7 +320,7 @@ main(int argc, char **argv)
 	}
 	for(;;)
 	{
-		if(networked && waitbit)
+		if(networked && waitbit && isplaying)
 		{
 			msg = netmain();
 			if(msg->tokens[0] != nil && strcmp(msg->tokens[0], "SYNC"))
@@ -333,7 +333,7 @@ main(int argc, char **argv)
 				m = ev.mouse;
 				if(m.buttons == 0)
 				{
-					if(mousedown && (state == Playing || state == Start))
+					if(mousedown && isplaying)
 					{
 						mousedown = 0;
 						if(turn % 2 == 0)
