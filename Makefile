@@ -8,7 +8,7 @@ Lib=\
 	netclient.o\
 
 Cli=	cli.o
-Srv=	srv.o
+Srv=	srv4.o
 
 all: cli srv
 
@@ -18,7 +18,7 @@ all: cli srv
 cli: ${Cli} ${Lib}
 	$(CC) $(CFLAGS) -o $@ ${Cli} ${Lib}
 
-srv: ${Srv} ${Lib}
+srv4: ${Srv} ${Lib}
 	$(CC) $(CFLAGS) -o $@ ${Srv} ${Lib}
 
 clean:
