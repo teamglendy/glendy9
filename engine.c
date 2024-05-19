@@ -51,8 +51,8 @@ initlevel(void)
 	for(i = 0 ; i < cnt ; i++)
 	{
 		/*
-		it's unlikely, but possible:
-		we randomly pick a cell which already have a wall or glenda inside it
+		 * it's unlikely, but possible:
+		 * we randomly pick a cell which already have a wall or glenda inside it
 		*/
 		do
 		{
@@ -163,15 +163,12 @@ domove(int dir)
 
 	if(networked)
 		return netmove(dir);
-
-	if(dst.x == 0 || dst.x == SzX-1 || dst.y == 0 || dst.y == SzY-1)
-		goto done;
 	
 	grid[dst.x][dst.y] = Glenda;
-done:
 	grid[src.x][src.y] = Prev;
 
 	turn++;
+	nextglenda();
 	return Ok;
 }
 
@@ -246,7 +243,6 @@ checknext(int dir, Point p)
 			return grid[x+(y%2?0:-1)][y-1];
 		default:
 			sysfatal("andrey messed up big time");
-			// return -1; /* silence compiler */
 	}
 }
 
@@ -317,7 +313,8 @@ nextglenda(void)
 	else if(ptype[1] == Computer)
 		domove(nextdir);
 
-	if(eqpt(findglenda(), Pt(-1, -1)))
+	p = findglenda();
+	if(p.x == 0 || p.x == SzX || p.y == 0 || p.y == SzY)
 		state = Lost;
 }
 
