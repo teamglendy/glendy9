@@ -102,7 +102,10 @@ netproc(Netmsg *msg, char *in)
 	msg->ntoken = i;
 	msg->tokens = tokens;
 	msg->err = Ok;
-	if(!strcmp(tokens[0], "CONN"))
+
+	if(tokens[0] == nil)
+		msg->err = Err;
+	else if(!strcmp(tokens[0], "CONN"))
 	{
 		switch(*tokens[1])
 		{
