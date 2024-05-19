@@ -356,7 +356,7 @@ static void
 loadgame(int n)
 {
 	if(n > sizeof(games) / sizeof(Game))
-		sysfatal("loadgame(): invalid game");
+		sysfatal("loadgame(%d): invalid game", n);
 	
 	id = games[n].id;
 	difficulty = games[n].difficulty;
