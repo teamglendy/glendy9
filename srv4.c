@@ -42,8 +42,19 @@ error(const char *msg)
 }
 
 static void
+cleanup(int game)
+{
+	dprint("cleanup(%d)\n", game);
+	close(games[game].sockfd[0]);
+	close(games[game].sockfd[1]);
+	if(game > 0)
+		gcount--;	
+}
+
+static void
 printclients(char *fmt, ...)
 {
+	int i;
 	/* it seems arg gets changed during the first call to vprint, thus we need two */
 	va_list arg, arg2;
 	
@@ -151,6 +162,7 @@ sendlevel(void)
 	}
 	else
 	{
+		printclients("SYNC %d %s\n", turn, syncmsg);
 		if(state == Won)
 		{
 			dprint("hah, trapper won\n");
@@ -163,8 +175,7 @@ sendlevel(void)
 			fprint(sockfd[0], "LOST\n");
 			fprint(sockfd[1], "WON\n");
 		}
-		close(sockfd[0]);
-		close(sockfd[1]);
+		cleanup(id);
 	}
 	dprint("TURN is %d\n", turn);
 	fprint(playersock, "TURN\n");
@@ -273,9 +284,7 @@ proc(int player, char *s)
 		fprint(sockfd[!player], "DIE other client have been disconnected\n");
 		
 		/* mmhm... what happens if we close a fd we are reading from? */
-		close(sockfd[0]);
-		close(sockfd[1]);
-		gcount--;
+		cleanup(id);
 		return Err;
 	}
 	else if(turn % 2 != player)
@@ -320,11 +329,11 @@ input(int game, int player)
 	int n = 0;
 	
 	/* sang bozorg */
-	s = malloc(1024);
+	s = emalloc(1024);
 	memset(s, 0, 1024);
 	
 	/* we could use local variables, but that not worth the trouble */
-	while(read(games[game].sockfd[player], s+n, 1) == 1 && n < 1024)
+	while((c = read(games[game].sockfd[player], s+n, 1) == 1) && n < 1024)
 	{
 		if(s[n] == '\n' || s[n] == '\0')
 		{
@@ -333,7 +342,8 @@ input(int game, int player)
 		}
 		n++;
 	}
-	dprint("got input: %s\n", s);
+	if(!strcmp(s, ""))
+		dprint("got input: %s\n", s);
 
 	return s;
 }
@@ -365,7 +375,7 @@ static void
 setgame(int n)
 {
 	if(n > sizeof(games) / sizeof(Game))
-		sysfatal("setgame(): invalid game");
+		sysfatal("setgame(%d): invalid game", n);
 	
 	/* id got to change when we set game */
 	id = n;
@@ -384,7 +394,7 @@ setgame(int n)
 static void
 clienthandler(void *data)
 {
-	int player, game;
+	int res, player, game;
 	char *s;
 	
 	game = ((int*)data)[0];
@@ -395,10 +405,17 @@ clienthandler(void *data)
 		/* most of time is spent here */
 		s = input(game, player);
 		
+
+		if(!strcmp(s, ""))
+		{
+			cleanup(game);
+			break;
+		}
+		
 		pthread_mutex_lock(&game_lock);
 		
 		loadgame(game);
-		proc(player, s);
+		res = proc(player, s);
 		setgame(game);
 		
 		pthread_mutex_unlock(&game_lock);
