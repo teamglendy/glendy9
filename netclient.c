@@ -143,7 +143,7 @@ netproc(Netmsg *msg, char *in)
 					p.x = atoi(xpos);
 					p.y = atoi(ypos);
 					
-					grid[p.x][p.y] = Wall;
+					grid[p.y][p.x] = Wall;
 					break;
 				case 'g':
 					xpos = strtok(nil, " ");
@@ -154,7 +154,7 @@ netproc(Netmsg *msg, char *in)
 					p.x = atoi(xpos);
 					p.y = atoi(ypos);
 					
-					grid[p.x][p.y] = Glenda;
+					grid[p.y][p.x] = Glenda;
 					break;
 				default:
 					if(!strcmp("SENT", tmp))
