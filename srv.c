@@ -214,8 +214,8 @@ proc_put(char *s)
 	char *xpos, *ypos;
 	unsigned int x, y, r;
 
-	xpos = strtok(s, " ");
-	ypos = strtok(nil, " ");
+	ypos = strtok(s, " ");
+	xpos = strtok(nil, " ");
 	
 	if(xpos == nil || ypos == nil)
 	{

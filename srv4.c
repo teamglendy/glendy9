@@ -190,8 +190,8 @@ proc_put(char *s)
 	char *xpos, *ypos;
 	unsigned int x, y, r;
 
-	xpos = strtok(s, " ");
-	ypos = strtok(nil, " ");
+	ypos = strtok(s, " ");
+	xpos = strtok(nil, " ");
 	
 	if(xpos == nil || ypos == nil)
 	{
@@ -206,9 +206,9 @@ proc_put(char *s)
 		"expected string in %s and %s\n", xpos, ypos);
 		return;
 	}
-	
+
+	y = atoi(ypos);	
 	x = atoi(xpos);
-	y = atoi(ypos);
 	
 	dprint("put %d %d\n", x, y);
 
