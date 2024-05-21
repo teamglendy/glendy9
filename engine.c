@@ -64,6 +64,7 @@ initlevel(void)
 
 	memcpy(grid, ogrid, sizeof grid);
 	state = Start;
+	turn = 0;
 }
 
 Point
