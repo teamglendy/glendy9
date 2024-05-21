@@ -23,6 +23,7 @@ int listenfd;
 int port = 1768;
 int debug = 1;
 char syncmsg[8];
+
 int sockfd[2];
 
 int gcount = 0;
@@ -386,7 +387,7 @@ setgame(int n)
 
 	games[n].sockfd[0] = sockfd[0];
 	games[n].sockfd[1] = sockfd[1];
-	
+
 	memcpy(games[n].grid, grid, sizeof(grid));
 }
 
@@ -426,7 +427,7 @@ clienthandler(void *data)
 void
 srv(int listenfd)
 {
-	int res[2];
+	int clientfd[2], res[2];
 	socklen_t clilen;
 	struct sockaddr_in servaddr, clientaddr;
 	int tdata[2][2];
@@ -439,24 +440,26 @@ srv(int listenfd)
 			memset(&clientaddr, 0, sizeof(clientaddr));
 	
 			clilen = sizeof(clientaddr);
-			sockfd[conns] = accept(listenfd, (struct sockaddr *) &clientaddr, &clilen);
+			clientfd[conns] = accept(listenfd, (struct sockaddr *) &clientaddr, &clilen);
 		
-			if(sockfd[conns] < 0)
+			if(clientfd[conns] < 0)
 				error("srv(): failed to accept connection");
 	
-			fprint(sockfd[conns], "CONN %d\n", conns);
+			fprint(clientfd[conns], "CONN %d\n", conns);
 			dprint("srv(): client %d connected\n", conns);
 	
 			if(conns == 0)
-				fprint(sockfd[conns], "WAIT\n");
+				fprint(clientfd[conns], "WAIT\n");
 		}
-		
-		gcount++;
 		pthread_mutex_lock(&game_lock);
-		
+		gcount++;
+
+		sockfd[0] = clientfd[0];
+		sockfd[1] = clientfd[1];
+
 		initlevel();
 		setgame(gcount);
-		
+
 		if(debug)
 			drawlevel();
 		
