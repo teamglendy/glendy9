@@ -202,7 +202,7 @@ netproc(Netmsg *msg, char *in)
 			if(msg->ntoken < 4)
 				sysfatal("netproc(): not enough tokens to SYNC trapper's move");
 			
-			p = parseput(tokens[2], tokens[3]);
+			p = parseput(tokens[3], tokens[2]);
 			doput(p);
 		}
 		/* TODO: very ugly hack, get rid of this */
