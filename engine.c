@@ -293,6 +293,9 @@ nextglenda(void)
 	int min = 1000, next, dir, nextdir = 0, count = 0;
 	Point p = findglenda();
 
+	if(networked)
+		return;
+
 	calc();
 	calc();
 	calc();
