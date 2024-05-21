@@ -169,7 +169,7 @@ sendlevel(void)
 		{
 			for(int y = 0; y < SzY; y++)
 			{
-				switch(grid[x][y])
+				switch(grid[y][x])
 				{
 					case Wall: 
 						printclients("w %d %d\n", x, y);
