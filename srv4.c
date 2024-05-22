@@ -1,5 +1,6 @@
 /*
  * glendy (unix) server, 4th revision
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
