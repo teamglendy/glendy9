@@ -188,8 +188,8 @@ proc_put(char *s)
 	char *xpos, *ypos;
 	unsigned int x, y, r;
 
-	ypos = strtok(s, " ");
-	xpos = strtok(nil, " ");
+	xpos = strtok(s, " ");
+	ypos = strtok(nil, " ");
 	
 	if(xpos == nil || ypos == nil)
 	{
@@ -205,9 +205,9 @@ proc_put(char *s)
 		return;
 	}
 
-	y = atoi(ypos);
-	x = atoi(xpos);	
-
+	/* engine assumes it's XY, protocol assumes it's YX */
+	y = atoi(xpos);
+	x = atoi(ypos);	
 	
 	dprint("put %d %d\n", x, y);
 
@@ -217,8 +217,7 @@ proc_put(char *s)
 		return;
 	}
 
-	/* engine assumes it's XY, protocol assumes it's YX */
-	r = doput(Pt(y, x)); 
+	r = doput(Pt(x, y)); 
 	if(r == Wall)
 		fprint(playersock, "WALL %d %d\n", x, y);
 	else if(r == Glenda)
