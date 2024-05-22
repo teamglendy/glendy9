@@ -142,7 +142,7 @@ sendlevel(void)
 		{
 			for(int y = 0; y < SzY; y++)
 			{
-				switch(grid[y][x])
+				switch(grid[x][y])
 				{
 					case Wall: 
 						printclients("w %d %d\n", x, y);
@@ -206,8 +206,8 @@ proc_put(char *s)
 	}
 
 	/* engine assumes it's XY, protocol assumes it's YX */
-	y = atoi(xpos);
-	x = atoi(ypos);	
+	x = atoi(xpos);
+	y = atoi(ypos);	
 	
 	dprint("put %d %d\n", x, y);
 

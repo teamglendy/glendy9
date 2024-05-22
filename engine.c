@@ -317,7 +317,7 @@ nextglenda(void)
 		domove(nextdir);
 
 	p = findglenda();
-	if(p.x == 0 || p.x == SzX || p.y == 0 || p.y == SzY)
+	if(p.x == 0 || p.x == SzX-1 || p.y == 0 || p.y == SzY-1)
 		state = Lost;
 }
 
