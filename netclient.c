@@ -173,13 +173,15 @@ netproc(Netmsg *msg, char *in)
 		waitbit = 0;
 	
 	else if(!strcmp(tokens[0], "WALL"))
+	{
 		msg->err = Wall;
 		waitbit = 0;
-	
+	}
 	else if(!strcmp(tokens[0], "GLND"))
+	{
 		msg->err = Glenda;
 		waitbit = 0;
-	
+	}
 	else if(!strcmp(tokens[0], "SYNC"))
 	{
 		if(state == Start)
