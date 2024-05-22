@@ -309,8 +309,6 @@ main(int argc, char **argv)
 	srand(time(0));
 
 	allocimages();
-//	initlevel();	/* must happen before "eresized" */
-	eresized(0);
 
 	if(networked)
 	{
@@ -318,6 +316,9 @@ main(int argc, char **argv)
 		netmain(); /* SYNC */
 		netmain(); /* TURN/WAIT */
 	}
+	else
+		initlevel();	/* must happen before "eresized" */
+	eresized(0);
 	for(;;)
 	{
 		if(networked && waitbit && isplaying)
