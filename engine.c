@@ -260,7 +260,6 @@ checknext(int dir, Point p)
 int 
 score1(Point p)
 {
-	
 	int min = 999, next;
 
 	if(p.x == 0 || p.x == SzX-1 || p.y == 0 || p.y == SzY-1)
@@ -312,8 +311,8 @@ nextglenda(void)
 		else if(next == min)
 			nextdir = (nrand(++count) == 0) ? dir : nextdir;
 	}
-	if(min > 100 && min != 999)
-			state = Won;	
+	if(min > 100)
+		state = Won;
 	else if(ptype[1] == Computer)
 		domove(nextdir);
 
