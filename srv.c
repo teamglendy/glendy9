@@ -243,7 +243,7 @@ proc_put(char *s)
 		return;
 	}
 
-	r = doput(Pt(x, y)); 
+	r = doput(Pt(y, x)); 
 	if(r == Wall)
 		fprint(playersock, "WALL %d %d\n", x, y);
 	else if(r == Glenda)
