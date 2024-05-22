@@ -1,6 +1,5 @@
 /*
  * glendy (unix) server, 4th revision
- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -47,9 +46,7 @@ cleanup(int game)
 {
 	dprint("cleanup(%d)\n", game);
 	close(games[game].sockfd[0]);
-	close(games[game].sockfd[1]);
-	if(game > 0)
-		gcount--;	
+	close(games[game].sockfd[1]);	
 }
 
 static void
@@ -207,8 +204,9 @@ proc_put(char *s)
 		return;
 	}
 
-	y = atoi(ypos);	
-	x = atoi(xpos);
+	y = atoi(ypos);
+	x = atoi(xpos);	
+
 	
 	dprint("put %d %d\n", x, y);
 
@@ -218,7 +216,8 @@ proc_put(char *s)
 		return;
 	}
 
-	r = doput(Pt(x, y)); 
+	/* engine assumes it's XY, protocol assumes it's YX */
+	r = doput(Pt(y, x)); 
 	if(r == Wall)
 		fprint(playersock, "WALL %d %d\n", x, y);
 	else if(r == Glenda)
@@ -226,7 +225,6 @@ proc_put(char *s)
 	else
 	{
 		sprint(syncmsg, "%u %u", x, y);
-		/* better be safe than sorry */
 		syncmsg[7] = '\0';
 		dprint("syncmsg = %s\n", syncmsg);
 	}
