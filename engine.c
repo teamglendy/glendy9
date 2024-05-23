@@ -261,17 +261,14 @@ checknext(int dir, Point p)
 int 
 score1(Point p)
 {
-	int min = 999, next;
+	int min = 999;
 
 	if(p.x == 0 || p.x == SzX-1 || p.y == 0 || p.y == SzY-1)
 		return 1; 		/* we can always escape from the edges */
 
-	for(int dir = NE; dir <= NW; dir++)
-	{
-		next = checknext(dir, p);
-		if(next < min)
-			min = next;
-	}
+	if(findmin(p) < min)
+		min = findmin(p);
+
 	if(min == 999)
 		return 998;
 	return 1+min;
@@ -288,10 +285,9 @@ calc(void)
 }
 
 int
-findmin(void)
+findmin(Point p)
 {
-	int next, min = 1000;
-	Point p = findglenda();
+	int next, min = 999;
 
 	for(int dir = NE; dir <= NW; dir++)
 	{
@@ -342,9 +338,9 @@ checkstate(void)
 {
 	Point p = findglenda();
 
-	if(findmin() > 100)
+	if(findmin(p) > 100)
 		state = Won;
-	else if(p.x == 0 || p.x == SzX-1 || p.y == 0 || p.y == SzY-1)
+	if(p.x == 0 || p.x == SzX-1 || p.y == 0 || p.y == SzY-1)
 		state = Lost;
 
 	return state;

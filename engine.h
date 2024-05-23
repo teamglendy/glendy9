@@ -77,7 +77,7 @@ int score1(Point p);
 void calc(void);
 void nextglenda(void);
 
-int findmin(void);
+int findmin(Point p);
 int checkstate(void);
 
 void restart(void);
