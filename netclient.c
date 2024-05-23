@@ -143,7 +143,7 @@ netproc(Netmsg *msg, char *in)
 					p.x = atoi(xpos);
 					p.y = atoi(ypos);
 					
-					grid[p.y][p.x] = Wall;
+					grid[p.x][p.y] = Wall;
 					break;
 				case 'g':
 					xpos = strtok(nil, " ");
@@ -154,7 +154,7 @@ netproc(Netmsg *msg, char *in)
 					p.x = atoi(xpos);
 					p.y = atoi(ypos);
 					
-					grid[p.y][p.x] = Glenda;
+					grid[p.x][p.y] = Glenda;
 					break;
 				default:
 					if(!strcmp("SENT", tmp))
@@ -206,7 +206,7 @@ netproc(Netmsg *msg, char *in)
 			if(msg->ntoken < 4)
 				sysfatal("netproc(): not enough tokens to SYNC trapper's move");
 			
-			p = parseput(tokens[3], tokens[2]);
+			p = parseput(tokens[2], tokens[3]);
 			doput(p);
 		}
 		/* TODO: very ugly hack, get rid of this */
