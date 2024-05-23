@@ -12,7 +12,7 @@ infra and documention:
 		- make it better!
 			- write info for score1, calc and nextglenda
 		- have one paragraph per each function
-		- add enums and variables
+		- add enums and variables X
 
 engine:
 	- move win/lose to engine X
@@ -20,7 +20,7 @@ engine:
 	- improve portablity X
 		- compiles on plan 9 X
 		- compiles on unix X
-		- compiles on windows, dos?
+		- compiles on windows, dos X!
 	- add turn X
 	- domove() check if there are walls there X
 	- move move() to engine X
@@ -48,9 +48,10 @@ engine:
 	- multiplayer version X
 		- ok, needs more testing X
 		- even more testing X
-	- net
+	- net X
 	- add flags for multiplayer X
 	- show turn, player somewhere
+	- add network menu
 
 cli client:
 	- single player X
@@ -60,8 +61,8 @@ cli client:
 	- fix bugs
 		- SE sometimes goes to east?? X (fixed with zig-zag effects)
 		- make map feel hex X (somewhat)
-			- see if there are any better ways to do so
-	- compile and test? in plan 9 X
+			- see if there are any better ways to do so X (map now has some basic curves)
+	- compile and test in plan 9 X
 	- compile and test in linux
 	- compile and test in windows(!)
 	- handle (handle what?)
@@ -79,17 +80,17 @@ SDL client:
 network protocol:
 	- define protocol, rfc style X
 		- introduce HI msg [URGENT]
-		- introduce session cookies (to resume a disconnected session?) [MED]
+		- introduce session cookies (to resume a disconnected session?) [LOW]
 	- refrence impl. of server X
-	- refernce impl. of client [URGENT]
+	- refernce impl. of client X
 
 plan 9 server:
 	- write one? (maybe port it from unix server?) [LOW]
 
 unix server:
 	- have a barebones version X
-	- allow multiplayers (2+) to play in the same time
-	- lock values
+	- allow multiplayers (2+) to play in the same time X
+	- lock values X
 	- don't crash once one disconnections X
 	- pick a port X (it's 1768)
-	- multithreaded
+	- multithreaded X
