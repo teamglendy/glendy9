@@ -6,16 +6,14 @@
 #include <draw.h>
 #endif
 
-// XXX
 #include "util.h"
-
 #include "engine.h"
 #include "netclient.h"
 
 int difficulty = DEasy;
 int state;
 int turn = 0;
-int ptype[2] = {Human, Computer}; /* human? computer? */
+int ptype[2] = {Human, Computer};
 
 int grid[SzX][SzY];
 int pgrid[SzX][SzY]; /* for undo */
@@ -169,7 +167,7 @@ domove(int dir)
 	grid[src.x][src.y] = Prev;
 
 	turn++;
-	nextglenda();
+	checkstate();
 	return Ok;
 }
 
@@ -206,7 +204,10 @@ doput(Point p)
 				grid[x][y] = 100;
 
 	/* we need it to check game state, even if not playing with computer */
-	nextglenda();
+	if(ptype[1] == Computer)
+		nextglenda();
+	else if(ptype[1] == Human)
+		checkstate();
 	return Ok;
 
 }
@@ -286,6 +287,20 @@ calc(void)
 					grid[x][y] = score1(Pt(x, y));
 }
 
+int
+findmin(void)
+{
+	int next, min = 1000;
+	Point p = findglenda();
+
+	for(int dir = NE; dir <= NW; dir++)
+	{
+		next = checknext(dir, p);
+		if(next < min)
+			min = next;
+	}
+	return min;
+}
 void
 nextglenda(void)
 {
@@ -298,7 +313,7 @@ nextglenda(void)
 	calc();
 	calc();
 	calc();
-	
+
 	for(dir = NE; dir <= NW; dir++)
 	{
 		next = checknext(dir, p);
@@ -310,15 +325,29 @@ nextglenda(void)
 		}
 		else if(next == min)
 			nextdir = (nrand(++count) == 0) ? dir : nextdir;
-	}
+	}	
+
 	if(min > 100)
 		state = Won;
-	else if(ptype[1] == Computer)
-		domove(nextdir);
+
+	domove(nextdir);
 
 	p = findglenda();
 	if(p.x == 0 || p.x == SzX-1 || p.y == 0 || p.y == SzY-1)
 		state = Lost;
+}
+
+int
+checkstate(void)
+{
+	Point p = findglenda();
+
+	if(findmin() > 100)
+		state = Won;
+	else if(p.x == 0 || p.x == SzX-1 || p.y == 0 || p.y == SzY-1)
+		state = Lost;
+
+	return state;
 }
 
 void

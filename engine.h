@@ -8,16 +8,9 @@ enum
 	DHard,	/* 1≤x<5 */
 	DImp, /* 0 */
 
-	New = 0,
-	Undo,
-	Restart,
-	Exit,
-
 	/* dynamic? original game has a fixed grid size, but we don't need to abide by it */
 	SzX = 11,
-	SzY = 11, 
-
-	Border = 3,
+	SzY = 11,
 
 	/* movement directions */
 	NE,
@@ -35,9 +28,10 @@ enum
 	PTrapper = 0,	
 	PGlenda,
 	PEither,
-	
+
+	/* game states */
 	Init = 0, /* setting up the map */
-	Start, /* game states */
+	Start,
 	Playing,
 	Won,	
 	Lost,
@@ -72,12 +66,19 @@ extern int pside; /* Trapper, Glenda */
 void initlevel(void);
 Point movedir(int dir, Point p);
 int pointdir(Point src, Point dst);
+
 int domove(int dir);
 int doput(Point p);
+
 Point findglenda(void);
 int checknext(int dir, Point p);
+
 int score1(Point p);
 void calc(void);
 void nextglenda(void);
+
+int findmin(void);
+int checkstate(void);
+
 void restart(void);
 void undo(void);
