@@ -20,7 +20,7 @@ sysfatal(char *fmt, ...)
 	vfprintf(stderr, fmt, arg);
 	va_end(arg);
 
-	exit(127);
+	abort();
 }
 
 _Noreturn void
