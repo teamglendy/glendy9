@@ -4,7 +4,57 @@ initlevel, pointdir, movedir, domove,
 doput, findglenda, checknext, score1, clac, nextglenda,
 restart, undo, checkstate \- libglendy functions
 .SH SYNOPSIS
-.B #include "engine.h"
+.EX
+.sp 0.3v
+#include "engine.h"
+
+enum
+{
+	/* difficulty levels (walls on the map) */
+	DEasy,	/* 10≤x<15 */
+	DMed,	/* 5≤x<10 */
+	DHard,	/* 1≤x<5 */
+	DImp, /* 0 */
+
+	New = 0,
+	Undo,
+	Restart,
+	Exit,
+
+	/* map size */
+	SzX = 11,
+	SzY = 11, 
+
+	Border = 3,
+
+	/* movement directions */
+	NE,
+	E,
+	SE,
+	SW,
+	W,
+	NW,
+
+	/* player types */
+	Human = 0,
+	Computer,
+	Net,
+
+	/* state of a game */
+	Init = 0,
+	Start,
+	Playing,
+	Won,	
+	Lost,
+
+	/* elements on the map */
+	Prev = 100, /* glenda's previous location */
+	Wall = 999,
+	Glenda = 1000,
+
+	Err = 0,
+	Ok,
+};
 .PP
 .B
 void initlevel(void);
