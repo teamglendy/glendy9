@@ -17,6 +17,15 @@ Image	*won;
 
 int debug;
 char *server = nil;
+enum
+{
+	New = 0,
+	Undo,
+	Restart,
+	Exit,
+
+	Border = 3,
+};
 
 char *mbuttons[] = 
 {
