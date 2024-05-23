@@ -16,16 +16,9 @@ enum
 	DHard,	/* 1≤x<5 */
 	DImp, /* 0 */
 
-	New = 0,
-	Undo,
-	Restart,
-	Exit,
-
 	/* map size */
 	SzX = 11,
 	SzY = 11, 
-
-	Border = 3,
 
 	/* movement directions */
 	NE,
@@ -55,48 +48,31 @@ enum
 	Err = 0,
 	Ok,
 };
-.PP
-.B
+
 void initlevel(void);
-.PP
-.B
 Point movedir(int dir, Point p);
-.PP
-.B
 int pointdir(Point src, Point dst);
-.PP
-.B
-int domove(int dir, Point p);
-.PP
-.B
+
+int domove(int dir);
 int doput(Point p);
-.PP
-.B
+
 Point findglenda(void);
-.PP
-.B
 int checknext(int dir, Point p);
-.PP
-.B
+
 int score1(Point p);
-.PP
-.B
 void calc(void);
-.PP
-.B
 void nextglenda(void);
-.PP
-.B
+
+int findmin(void);
+int checkstate(void);
+
 void restart(void);
-.PP
-.B
 void undo(void);
 
 .SH DESCRIPTION
-These functions are used to deal with details of
+These library provides functions to deal with
 .I glendy
-(also known as cat trap)
-and make writing clients easier.
+game logic and make writing clients and servers easier.
 
 .I initlevel
 sets up the map with glenda always on middle
@@ -105,16 +81,16 @@ and amount of walls based on
 variable,
 .TP 10
 .B DEasy
-	10 ≤ x ≤ 15
+10 ≤ x ≤ 15
 .TP 10
 .B DMed
-	5 ≤ x ≤ 10
+5 ≤ x ≤ 10
 .TP 10
 .B Dhard
-	1 ≤ x ≤ 5
+1 ≤ x ≤ 5
 .TP 10
 .B DImp
-	x = 0
+x = 0
 .PP
 where 
 .B x
