@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <draw.h>
 #include <event.h>
+#include "netclient.h"
 #include "engine.h"
 
 Font *font;
@@ -15,6 +16,16 @@ Image 	*lost;
 Image	*won;
 
 int debug;
+char *server = nil;
+enum
+{
+	New = 0,
+	Undo,
+	Restart,
+	Exit,
+
+	Border = 3,
+};
 
 char *mbuttons[] = 
 {
@@ -258,7 +269,7 @@ eresized(int new)
 void
 usage(void)
 {
-	fprint(2, "usage: %s [-dg]\n", argv0);
+	fprint(2, "usage: %s [-dg] [-n server]\n", argv0);
 	exits("usage");
 }
 
@@ -267,6 +278,7 @@ main(int argc, char **argv)
 {
 	Mouse m;
 	Event ev;
+	Netmsg *msg;
 	int e, mousedown=0;
 
 	/* todo, add flags for human playing */
@@ -281,6 +293,12 @@ main(int argc, char **argv)
 		case 'g':
 			ptype[1] = Computer;
 			break;
+		case 'n':
+			ptype[0] = Net;
+			ptype[1] = Net;
+			networked = 1;
+			server = EARGF(usage());
+			break;
 		default:
 			usage();
 	}ARGEND
@@ -288,16 +306,36 @@ main(int argc, char **argv)
 		sysfatal("initdraw failed: %r");
 	einit(Emouse);
 
+	if(server != nil && networked)
+	{
+		srvfd = dial(server, nil, nil, nil);
+		if(srvfd < 0)
+			sysfatal("unable to connect: %r");
+	}
+	
 	resize();
 
 	srand(time(0));
 
 	allocimages();
-	initlevel();	/* must happen before "eresized" */
-	eresized(0);
 
+	if(networked)
+	{
+		netmain(); /* CONN */
+		netmain(); /* SYNC */
+		netmain(); /* TURN/WAIT */
+	}
+	else
+		initlevel();	/* must happen before "eresized" */
+	eresized(0);
 	for(;;)
 	{
+		if(networked && waitbit && isplaying)
+		{
+			msg = netmain();
+			if(msg->tokens[0] != nil && strcmp(msg->tokens[0], "SYNC"))
+				drawlevel();
+		}
 		e = event(&ev);
 		switch(e)
 		{
@@ -305,14 +343,15 @@ main(int argc, char **argv)
 				m = ev.mouse;
 				if(m.buttons == 0)
 				{
-					if(mousedown && (state == Playing || state == Start))
+					if(mousedown && isplaying)
 					{
 						mousedown = 0;
 						if(turn % 2 == 0)
 							put(m.xy);
 						else
 							move(m.xy);
-						drawlevel();
+						if(!networked)
+							drawlevel();
 					}
 				}
 				if(m.buttons&1)
