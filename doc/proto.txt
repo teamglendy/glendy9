@@ -1,3 +1,5 @@
+Glendy protocol:
+
 This is the protocol used in networked games,
 currently in early alpha state, and is subject to changes;
 see the following changelog for more info:
@@ -20,6 +22,9 @@ see the following changelog for more info:
 	
 2024/05/14:
 	insist upon '\n' on writes, ascii → ASCII
+
+2024/05/24:
+	minor changes
 
 ------
 notes:
@@ -99,25 +104,20 @@ where D is one of six direction (NE, E, ...)
 after a sucessful move both clients are notified with SYNC message;
 if move have been done by "trapper":
 SYNC t x y
-
-where t is the turn number and x, y are the position of new wall.
+Where t is the turn number and x, y are the position of new wall.
 
 if "glenda" have been moved:
 SYNC t d
+Where t is turn number and d is the direction (NE, E, ...).
 
-where t is turn number and d is the direction (NE, E, ...).
+Game will contiune until either "glenda" manages to escape the map,
+or "trapper" sucessfully traps "glenda". 
+if a game has ended or not is decided by the server.
 
-game will contiune until either "glenda" manages to escape the map,
-or "trapper" sucessfully traps "glenda". if a game has ended or not is decided by the server.
+Clients should not end the game before server tells them to do so,
+once the game is over, server will report it as
+WON or LOST on the respective players.
 
-clients should not end the game before server tells them to do so,
-once the game is over, server will report it as:
-WON
 
-or:
-LOST
-
-on the respective players.
-
-once a game is finished, server closes connections to both clients.
+Once a game is finished, server closes connections to both clients.
 clients willing to play another match must reconnect.
