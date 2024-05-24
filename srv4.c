@@ -175,8 +175,9 @@ sendlevel(void)
 			fprint(sockfd[1], "WON\n");
 		}
 		cleanup(id);
+		return;
 	}
-	dprint("TURN is %d\n", turn);
+	dprint("Game %d, Turn is %d, min = %d\n", id, turn, findmin(findglenda()));
 	fprint(playersock, "TURN\n");
 	fprint(sockfd[!(turn % 2)], "WAIT\n");
 }
@@ -278,7 +279,6 @@ proc(int player, char *s)
 	/* early return paths */
 	if(*s == '\0' || *s == 'q')
 	{
-		/* should we end the game at this point? XXX important */
 		fprint(sockfd[player], "DIE disconnected\n");
 		fprint(sockfd[!player], "DIE other client have been disconnected\n");
 		
@@ -444,7 +444,7 @@ srv(int listenfd)
 				error("srv(): failed to accept connection");
 	
 			fprint(clientfd[conns], "CONN %d\n", conns);
-			dprint("srv(): client %d connected\n", conns);
+			dprint("game %d: srv(): client %d connected\n", gcount, conns);
 	
 			if(conns == 0)
 				fprint(clientfd[conns], "WAIT\n");
