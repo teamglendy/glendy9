@@ -168,7 +168,7 @@ domove(int dir)
 
 	turn++;
 	/* server should tell us */
-	if((ptype[1] == Human && !networked)
+	if(ptype[1] == Human && !networked)
 		checkstate();
 	return Ok;
 }
