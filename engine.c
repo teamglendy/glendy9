@@ -167,7 +167,9 @@ domove(int dir)
 	grid[src.x][src.y] = Prev;
 
 	turn++;
-	checkstate();
+	/* server should tell us */
+	if((ptype[1] == Human && !networked)
+		checkstate();
 	return Ok;
 }
 
@@ -206,10 +208,10 @@ doput(Point p)
 	/* we need it to check game state, even if not playing with computer */
 	if(ptype[1] == Computer)
 		nextglenda();
-	else if(ptype[1] == Human)
+	else if(ptype[1] == Human && !networked)
 		checkstate();
-	return Ok;
 
+	return Ok;
 }
 
 Point
@@ -300,7 +302,7 @@ findmin(Point p)
 void
 nextglenda(void)
 {
-	int min = 1000, next, dir, nextdir = 0, count = 0;
+	int min = 100, next, dir, nextdir = 0, count = 0;
 	Point p = findglenda();
 
 	if(networked)
@@ -321,12 +323,11 @@ nextglenda(void)
 		}
 		else if(next == min)
 			nextdir = (nrand(++count) == 0) ? dir : nextdir;
-	}	
-
+	}
 	if(min > 100)
 		state = Won;
-
-	domove(nextdir);
+	else
+		domove(nextdir);
 
 	p = findglenda();
 	if(p.x == 0 || p.x == SzX-1 || p.y == 0 || p.y == SzY-1)
