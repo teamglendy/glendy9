@@ -1,4 +1,4 @@
-o#ifdef unix
+#ifdef unix
 #include "unix.h"
 #else
 #include <u.h>
