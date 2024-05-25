@@ -339,7 +339,11 @@ checkstate(void)
 {
 	Point p = findglenda();
 
-	if(findmin(p) >= 100)
+	calc();
+	calc();
+	calc();
+
+	if(findmin(p) > 100)
 		state = Won;
 	if(p.x == 0 || p.x == SzX-1 || p.y == 0 || p.y == SzY-1)
 		state = Lost;
