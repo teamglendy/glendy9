@@ -1,4 +1,4 @@
-#ifdef unix
+o#ifdef unix
 #include "unix.h"
 #else
 #include <u.h>
@@ -289,7 +289,7 @@ calc(void)
 int
 findmin(Point p)
 {
-	int next, min = 999;
+	int next, min = 998;
 
 	for(int dir = NE; dir <= NW; dir++)
 	{
@@ -302,7 +302,7 @@ findmin(Point p)
 void
 nextglenda(void)
 {
-	int min = 100, next, dir, nextdir = 0, count = 0;
+	int min = 999, next, dir, nextdir = 0, count = 0;
 	Point p = findglenda();
 
 	if(networked)
