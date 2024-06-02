@@ -1,10 +1,4 @@
-#ifdef unix
-#include "unix.h"
-#else
-#include <u.h>
-#include <libc.h>
-#include <draw.h>
-#endif
+#include "port.h"
 
 #include "util.h"
 #include "engine.h"
@@ -46,19 +40,20 @@ initlevel(void)
 	}
 	ogrid[SzX/2][SzY/2] = Glenda;
 
+setmap:
 	for(i = 0 ; i < cnt ; i++)
 	{
-		/*
-		 * it's unlikely, but possible:
-		 * we randomly pick a cell which already have a wall or glenda inside it
-		*/
+		/* ensure we don't over place walls in glenda or walls (again) */
 		do
 		{
 			x = nrand(SzX);
 			y = nrand(SzY);
-		}while(ogrid[x][y] != Prev);
+		}while(ogrid[x][y] == Glenda || ogrid[x][y] == Wall);
 		ogrid[x][y] = Wall;
 	}
+	/* ensure we don't make an unfair map */
+	if(checkstate() == Won && findmin(Pt(SzX/2, SzY/2)) > 100)
+		goto setmap;
 
 	memcpy(grid, ogrid, sizeof grid);
 	state = Start;
@@ -271,7 +266,7 @@ score1(Point p)
 	if(findmin(p) < min)
 		min = findmin(p);
 
-	if(min == 999)
+	if(min >= 998)
 		return 998;
 	return 1+min;
 }
