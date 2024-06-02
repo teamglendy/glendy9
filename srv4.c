@@ -341,8 +341,7 @@ input(int game, int player)
 		}
 		n++;
 	}
-	if(!strcmp(s, ""))
-		dprint("got input: %s\n", s);
+	dprint("[G%2d/P%2d], got input: %s\n", game, player, s);
 
 	return s;
 }
