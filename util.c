@@ -1,11 +1,4 @@
-#ifdef unix
-#include "unix.h"
-#else
-#include <u.h>
-#include <libc.h>
-#include <draw.h>
-#endif
-
+#include "port.h"
 #include "engine.h"
 
 int
