@@ -1,4 +1,6 @@
 #include "port.h"
+
+#include "util.h"
 #include "engine.h"
 
 int
@@ -113,4 +115,102 @@ emalloc(unsigned long n)
 		sysfatal("malloc: %r");
 	
 	return p;	
+}
+/* list */
+int
+lladd(List *last, void *data)
+{
+	List *temp;
+
+	dprint("lladd(%p, %p)\n", last, data);
+	
+	if(last->next != nil)
+		return 0;
+
+	dprint("lladd(): adding entry\n");
+	
+	temp = llnew();
+	
+	last->next = temp;
+	temp->data = data;
+	
+	return 1;
+}
+
+void
+llappend(List *first, void *data)
+{
+	List *temp, *last;
+
+	dprint("lladd(%p, %p)\n", first, data);
+
+	/* workaround for first entry */	
+	if(first->data == nil)
+		temp = first;
+	else
+		temp = llnew();
+	temp->data = data;
+	
+	last = first->prev;
+	if(last != nil)
+		last->next = temp;
+	
+	first->prev = temp;
+}
+
+List*
+llnew(void)
+{
+	List *l;
+	l = (List*)emalloc(sizeof(List));
+	l->next = nil;
+	l->data = nil;
+	l->prev = nil;
+	
+	return l;
+}
+
+/* returns nth item from list  */
+void*
+lookup(List *l, int n)
+{
+	List *tmp;
+	
+	dprint("lookup(%p, %d)\n", l, n);
+	/* cycles thru list if n > list size */
+	for(tmp = l ; --n > 0 ; tmp = tmp->next)
+		;
+	
+	return tmp->data;
+}
+
+/* quene */
+void
+qadd(Quene *q, void *data)
+{
+	q->len++;
+	llappend(q->l, data);
+}
+
+void
+qnext(Quene *q)
+{
+	List *oldfirst, *last;
+	if(q->len == 0)
+		sysfatal("qnext(): q->len == 0");
+	
+	q->len--;
+	
+	/* note the last node */
+	last = q->l->prev;
+	
+	/* note the first */
+	oldfirst = q->l;
+	
+	/* delete oldfirst */
+	q->l = q->l->next;
+	free(oldfirst);
+	
+	/* update last */
+	last->next = q->l;
 }
