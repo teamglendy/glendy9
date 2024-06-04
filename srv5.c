@@ -608,7 +608,10 @@ makematch(Client *c)
 			c->side = (head->side == PGlenda) ? PTrapper : PGlenda;
 		
 		qnext(&clients);
-		play(c, head);
+		if(c->side == PTrapper)
+			play(c, head);
+		else
+			play(head, c);
 	}
 }
 
