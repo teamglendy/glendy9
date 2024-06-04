@@ -1,3 +1,5 @@
+#define playersock sockfd[turn % 2]
+
 extern int id;
 extern int sockfd[2];
 
@@ -11,3 +13,13 @@ typedef struct
 	int grid[SzX][SzY];
 	char syncmsg[8];
 }Game;
+
+typedef struct
+{
+	int fd;
+	char *nick;
+	int game;	
+	int side;
+	int opts;
+	void *thread;
+}Client;
