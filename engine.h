@@ -27,10 +27,11 @@ enum
 
 	PTrapper = 0,	
 	PGlenda,
-	PEither,
+	PRandom,
 
 	/* game states */
-	Init = 0, /* setting up the map */
+	Connect = 0,
+	Init, /* setting up the map */
 	Start,
 	Playing,
 	Won,	
