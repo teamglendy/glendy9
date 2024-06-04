@@ -15,11 +15,30 @@ int pside; /* Trapper, Glenda */
 
 int srvfd;
 
+char *pnick;
+int pside;
+int pgame;
+int popts;
+
+static char*
+himsg(char *name, int game, int side, int opts)
+{
+	char *msg;
+	
+	dprint("himsg(%s, %d, %d, %d)\n", name, game, side, opts);
+	if(side > PRandom)
+		return nil;
+	
+	msg = (char*)emalloc(32);
+	sprint(msg, "%s %d %d %d\n", name, game, side, opts);
+	return msg;
+}
+
 static char*
 movemsg(int dir)
 {
 	char *d, *msg;
-
+	
 	d = dirtostr(dir);
 	if(d == nil)
 		return nil;
@@ -40,6 +59,26 @@ putmsg(int x, int y)
 	msg = (char*)emalloc(10);
 	sprint(msg, "p %d %d\n", x, y);
 	return msg;
+}
+
+int
+nethi(char *name, int game, int side, int opts)
+{	
+	int len;
+	char *msg;
+
+	msg = himsg(name, game, side, opts);
+	if(msg == nil)
+		return Err;
+	
+	len = strlen(msg);
+	if(write(srvfd, msg, len) < len)
+		sysfatal("nethi(): half written?");
+
+	/* otherwise client wont read socket to confirm */
+	waitbit = 1;
+	free(msg);
+	return Ok;
 }
 
 int
@@ -248,6 +287,9 @@ netmain(void)
 	char *s;
 	msg = malloc(sizeof(Netmsg));
 
+	if(state == Connect)
+		nethi(pnick, pgame, pside, popts);
+	
 	s = netread();
 	netproc(msg, s);
 	free(s);
