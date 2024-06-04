@@ -9,23 +9,26 @@ Lib=\
 	netclient.o\
 
 Cli=	cli.o
-Clinet = clinet.o
+Srv5=	srv5.o
 Srv4=	srv4.o
-Srv=	srv.o
 
-all: cli srv4 srv
+all:
+	@echo 'make cli, clinet, srv5, srv4 or docs'
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-cli: ${Cli} ${Lib}
+cli: ${Cli} ${Lib} netclient.o
 	$(CC) $(CFLAGS) -o $@ ${Cli} ${Lib}
+
+clinet: clinet.o ${Lib}	netclient.o
+	$(CC) $(CFLAGS) -o $@ clinet.o ${Lib}
 
 srv4: ${Srv4} ${Lib}
 	$(CC) $(CFLAGS) -o $@ ${Srv4} ${Lib}
 
-srv: ${Srv} ${Lib}
-	$(CC) $(CFLAGS) -o $@ ${Srv} ${Lib}
+srv5: ${Srv5} ${Lib}
+	$(CC) $(CFLAGS) -o $@ ${Srv5} ${Lib}
 docs:
 	$(NROFF) doc/glendy2.man | col -b > doc/glendy2.txt
 clean:
