@@ -78,6 +78,7 @@ nethi(char *name, int game, int side, int opts)
 	/* otherwise client wont read socket to confirm */
 	waitbit = 1;
 	free(msg);
+	state = Init;
 	return Ok;
 }
 
@@ -288,7 +289,8 @@ netmain(void)
 	msg = malloc(sizeof(Netmsg));
 
 	if(state == Connect)
-		nethi(pnick, pgame, pside, popts);
+	//	nethi(pnick, pgame, pside, popts);
+		nethi(pnick, 0, pside, 0);
 	
 	s = netread();
 	netproc(msg, s);
