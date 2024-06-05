@@ -600,7 +600,7 @@ makematch(Client *c)
 	Client *head;
 
 	if(clients.l == nil)
-		clients.l == llnew();
+		clients.l = llnew();
 
 	head = clients.l->data;
 	if(head == nil || c->side == head->side)
