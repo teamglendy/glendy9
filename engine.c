@@ -4,7 +4,7 @@
 #include "engine.h"
 #include "netclient.h"
 
-int difficulty = DEasy;
+int difficulty = DMed;
 int state;
 int turn = 0;
 int ptype[2] = {Human, Computer};
