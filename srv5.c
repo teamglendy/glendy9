@@ -545,7 +545,7 @@ parseside(int fd, char *side)
 	int s;
 	
 	s = atoi(side);
-	if(s == 0 || s == 1)
+	if(s == PGlenda || s == PTrapper || s == PRandom)
 		return s;
 	
 	die:
@@ -572,7 +572,7 @@ newclient(char *in, int fd)
 	side = strtok(nil, " ");
 	opts = strtok(nil, " ");
 
-	dprint("newclient(%d): nick: %s, game: %s, side: %s,  opts: %s\n", fd, nick, game, side, opts);
+	dprint("newclient(%d): nick: %s, side: %s, game: %s, opts: %s\n", fd, nick, side, game, opts);
 	
 	if(nick == nil || side == nil || game == nil)
 			return nil;
@@ -598,12 +598,8 @@ newclient(char *in, int fd)
 void
 makematch(Client *c)
 {
-	Client *head;
+	Client *head = clients.l->data;
 	
-	if(clients.l == nil)
-		clients.l = llnew();
-
-	head = clients.l->data;
 	if(head == nil || c->side == head->side)
 	{
 		if(c->side == PRandom)
