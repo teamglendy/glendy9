@@ -269,7 +269,12 @@ eresized(int new)
 void
 usage(void)
 {
-	fprint(2, "usage: %s [-dg] [-n server]\n", argv0);
+	fprint(2, "usage: %s [-dg] [-s sidenum] [-n server]\n"
+	"side:\n"
+	"\t0: trapper\n"
+	"\t1: glenda\n"
+	"\t2: random\n"
+	, argv0);
 	exits("usage");
 }
 
