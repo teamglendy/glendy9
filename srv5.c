@@ -445,7 +445,6 @@ play(Client *c1, Client *c2)
 	int res[2];
 	int *tdata[2];
 	Game *g;
-	int tmpbuf[64][1];
 	
 	tdata[0] = (int*)emalloc(2 * sizeof(int));
 	tdata[1] = (int*)emalloc(2 * sizeof(int));
@@ -493,11 +492,6 @@ play(Client *c1, Client *c2)
 		sysfatal("pthread_create() failed: %d\n", res[0] ? res[0] : res[1]);
 
 	dprint("play(): threads for game %d are created\n", gcount);	
-	
-	pthread_join(c1->thread, (void*)tmpbuf);
-	pthread_join(c2->thread, (void*)tmpbuf);
-	
-	dprint("play(): join'ed\n");
 }
 
 char*
