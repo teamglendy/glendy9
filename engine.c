@@ -81,7 +81,7 @@ movedir(int dir, Point p)
 		case NW:
 			return Pt(x+(y%2?0:-1), y-1);
 		default:
-			sysfatal("andrey messed up big time");
+			sysfatal("andrey messed up big time: %d", dir);
 			/* should we keep that line around? it might be more useful than sysfatal */
 			// return Pt(-1, -1); 
 	}
