@@ -141,9 +141,9 @@ is a depracated varient of
 .I calc
 and
 .I nextglenda
-are... uh..., functions i guess?
-i don't know what they do. they are supposed to be computer's algorithm,
-please let me know if you know what's going on!
+Score1 calculates how many turns would it take to reach the edge from a specifc point in grid.
+Calc sets the score of whole map, and nextglenda makes a move based on shortest path.
+if there are two (or more) equally short paths, it will pick one randomly.
 .PP
 .I restart
 reverts grid layout to
