@@ -447,16 +447,16 @@ play(Client *c1, Client *c2)
 	sockfd[0] = c1->fd;
 	sockfd[1] = c2->fd;
 
-	initlevel();
 	g = (Game*)emalloc(sizeof(Game));
 	llappend(games, g);
+	initlevel();
 	setgame(gcount);
 
 	if(debug)
 		drawlevel();
 	
-	fprint(g->sockfd[0], "CONN %d\n", 0);
-	fprint(g->sockfd[1], "CONN %d\n", 1);
+	fprint(g->sockfd[0], "CONN %d %s\n", 0, c2->nick);
+	fprint(g->sockfd[1], "CONN %d %s\n", 1, c1->nick);
 	
 	sendlevel();
 
