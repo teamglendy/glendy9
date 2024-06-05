@@ -406,7 +406,6 @@ clienthandler(void *data)
 {
 	int gid, player;
 	char *s;
-	Game *g;
 	
 	gid = ((int*)data)[0];
 	player = ((int*)data)[1];
