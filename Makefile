@@ -1,5 +1,5 @@
 CC=cc
-CFLAGS +=-g -Dunix -pthread
+CFLAGS +=-g -Wall -Dunix -pthread
 NROFF=mandoc
 
 Lib=\
