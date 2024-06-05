@@ -281,11 +281,13 @@ usage(void)
 void 
 main(int argc, char **argv)
 {
+	char *side;
 	Mouse m;
 	Event ev;
 	Netmsg *msg;
 	int e, mousedown=0;
 
+	pnick = getenv("user");
 	/* todo, add flags for human playing */
 	ARGBEGIN{
 		case 'D':
@@ -298,11 +300,18 @@ main(int argc, char **argv)
 		case 'g':
 			ptype[1] = Computer;
 			break;
+		case 's':
+			side = EARGF(usage());
+			pside = atoi(side);
+			break;
 		case 'n':
 			ptype[0] = Net;
 			ptype[1] = Net;
 			networked = 1;
 			server = EARGF(usage());
+			break;
+		case 'N':
+			pnick = EARGF(usage());
 			break;
 		default:
 			usage();
