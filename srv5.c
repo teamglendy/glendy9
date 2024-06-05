@@ -347,7 +347,7 @@ input(int gid, int player)
 		n++;
 	}
 	if(!strcmp(s, ""))
-		dprint("input(%d, %d): got input: %x, %s\n", gid, player, *s, s);
+		dprint("input(%d, %d): got input: 0x%x, %s\n", gid, player, *s, s);
 
 	return s;
 }
@@ -603,8 +603,7 @@ makematch(Client *c)
 	if(clients.l == nil)
 		clients.l = llnew();
 
-
-	head = clients.l->data;
+	head = (Client*)clients.l->data;
 	if(head == nil || c->side == head->side)
 	{
 		if(c->side == PRandom)
@@ -669,7 +668,7 @@ registerclient(void *clientfd)
 	cl = newclient(s, fd);
 	
 	if(cl != nil)
-		makematch(cl);
+		makematch(cl);/
 	die:
 		free(s);
 }
