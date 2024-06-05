@@ -50,6 +50,8 @@ cleanup(int gid)
 	dprint("cleanup(%d)\n", gid);
 	
 	g = (Game*)lookup(games, gid);
+	shutdown(g->sockfd[0], SHUT_RDWR);
+	shutdown(g->sockfd[1], SHUT_RDWR);
 	close(g->sockfd[0]);
 	close(g->sockfd[1]);
 }
