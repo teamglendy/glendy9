@@ -599,8 +599,10 @@ makematch(Client *c)
 {
 	Client *head;
 
+	pthread_mutex_lock(&game_lock);
 	if(clients.l == nil)
 		clients.l = llnew();
+
 
 	head = clients.l->data;
 	if(head == nil || c->side == head->side)
@@ -609,6 +611,7 @@ makematch(Client *c)
 			c->side = nrand(1) ? PTrapper : PGlenda;
 		
 		qadd(&clients, c);
+		pthread_mutex_unlock(&game_lock);
 		fprint(c->fd, "WAIT\n");
 	}
 	else
@@ -617,6 +620,7 @@ makematch(Client *c)
 			c->side = (head->side == PGlenda) ? PTrapper : PGlenda;
 		
 		qnext(&clients);
+		pthread_mutex_unlock(&game_lock);
 		if(c->side == PTrapper)
 			play(c, head);
 		else
@@ -665,11 +669,7 @@ registerclient(void *clientfd)
 	cl = newclient(s, fd);
 	
 	if(cl != nil)
-	{
-		pthread_mutex_lock(&game_lock);
 		makematch(cl);
-		pthread_mutex_unlock(&game_lock);
-	}
 	die:
 		free(s);
 }
