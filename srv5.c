@@ -572,7 +572,7 @@ newclient(char *in, int fd)
 	side = strtok(nil, " ");
 	opts = strtok(nil, " ");
 
-	dprint("newclient(%d): nick: %s, side: %s, game: %s, opts: %s\n", fd, nick, side, game, opts);
+	dprint("newclient(%d): nick: %s, game: %s, side: %s,  opts: %s\n", fd, nick, game, side, opts);
 	
 	if(nick == nil || side == nil || game == nil)
 			return nil;
@@ -598,8 +598,12 @@ newclient(char *in, int fd)
 void
 makematch(Client *c)
 {
-	Client *head = clients.l->data;
+	Client *head;
 	
+	if(clients.l == nil)
+		clients.l = llnew();
+
+	head = clients.l->data;
 	if(head == nil || c->side == head->side)
 	{
 		if(c->side == PRandom)
