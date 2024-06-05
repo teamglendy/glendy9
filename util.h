@@ -3,13 +3,13 @@ struct List
 {
 	void *data;
 	List *next;
-	List *prev;
 };
 
 typedef struct
 {
 	int len;
-	List *l;
+	List *head;
+	List *tail;
 }Quene;
 
 int isnum(char *s, unsigned int n);

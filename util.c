@@ -126,8 +126,6 @@ lladd(List *last, void *data)
 	
 	if(last->next != nil)
 		return 0;
-
-	dprint("lladd(): adding entry\n");
 	
 	temp = llnew();
 	
@@ -142,20 +140,22 @@ llappend(List *first, void *data)
 {
 	List *temp, *last;
 
-	dprint("lladd(%p, %p)\n", first, data);
+	dprint("llappend(%p, %p)\n", first, data);
 
+
+	for(last = first ; last->next != nil ; last = last->next)
+		;
+	
 	/* workaround for first entry */	
 	if(first->data == nil)
 		temp = first;
 	else
 		temp = llnew();
-	temp->data = data;
 	
-	last = first->prev;
+	temp->data = data;
+
 	if(last != nil)
 		last->next = temp;
-	
-	first->prev = temp;
 }
 
 List*
@@ -165,8 +165,7 @@ llnew(void)
 	l = (List*)emalloc(sizeof(List));
 	l->next = nil;
 	l->data = nil;
-	l->prev = nil;
-	
+		
 	return l;
 }
 
@@ -189,7 +188,8 @@ void
 qadd(Quene *q, void *data)
 {
 	q->len++;
-	llappend(q->l, data);
+	lladd(q->tail, data);
+	q->tail = q->tail->next;
 }
 
 void
@@ -201,16 +201,12 @@ qnext(Quene *q)
 	
 	q->len--;
 	
-	/* note the last node */
-	last = q->l->prev;
+	oldfirst = q->head;
+	q->head = q->head->next;
 	
-	/* note the first */
-	oldfirst = q->l;
-	
-	/* delete oldfirst */
-	q->l = q->l->next;
+	if(q->tail == oldfirst)
+		q->tail = nil;
+		
 	free(oldfirst);
 	
-	/* update last */
-	last->next = q->l;
 }
