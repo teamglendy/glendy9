@@ -665,19 +665,14 @@ registerclient(void *clientfd)
 	cl = newclient(s, fd);
 	
 	if(cl != nil)
+	{
+		pthread_mutex_lock(&game_lock);
 		makematch(cl);
-
+		pthread_mutex_unlock(&game_lock);
+	}
 	die:
 		free(s);
 }
-
-/*
-static pthread_t*
-newthread(void)
-{
-	return (pthread_t*)emalloc(sizeof(pthread_t));
-}
-*/
 
 void
 srv(int listenfd)
