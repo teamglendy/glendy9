@@ -223,10 +223,10 @@ proc_put(char *s)
 
 	r = doput(Pt(x, y)); 
 	if(r == Wall)
-		fprint(playersock, "WALL %d %d\n", x, y);
+		fprint(playersock, "ERR wall in %d %d\n", x, y);
 	
 	else if(r == Glenda)
-		fprint(playersock, "GLND %d %d\n", x, y);
+		fprint(playersock, "ERR glenda in %d %d\n", x, y);
 	
 	else
 	{
@@ -250,7 +250,7 @@ proc_move(char *s)
 		fprint(playersock, "ERR invalidinput proc_move(): %s\n", s);
 	
 	else if(domove(d) == Wall)
-		fprint(playersock, "WALL %s %d %d\n", s, p.x, p.y);
+		fprint(playersock, "ERR glenda %s %d %d\n", s, p.x, p.y);
 	
 	else
 	{
@@ -300,11 +300,11 @@ proc(int player, char *s)
 			if(turn % 2 == 0)
 				proc_put(s+2);
 			else if(turn % 2 == 1)
-				fprint(playersock, "CANTP\n");
+				fprint(playersock, "ERR you can't put walls\n");
 			break;
 		case 'm':
 			if(turn % 2 == 0)
-				fprint(playersock, "CANTM\n");
+				fprint(playersock, "you can't move!\n");
 			else if(turn % 2 == 1)
 				proc_move(s+2);
 			break;
@@ -336,6 +336,9 @@ input(int gid, int player)
 	/* we could use local variables, but that not worth the trouble */
 	while((c = read(g->sockfd[player], s+n, 1) == 1) && n < 1024)
 	{
+		/* silently drop CR from CRLF */
+		if(s[n] == '\r')
+			s[n] = '\0';	
 		if(s[n] == '\n' || s[n] == '\0')
 		{
 			s[n] = '\0';
@@ -440,8 +443,12 @@ static void
 play(Client *c1, Client *c2)
 {
 	int res[2];
-	int tdata[2][2];
+	int *tdata[2];
 	Game *g;
+	int tmpbuf[64][1];
+	
+	tdata[0] = (int*)emalloc(2 * sizeof(int));
+	tdata[1] = (int*)emalloc(2 * sizeof(int));
 	
 	pthread_mutex_lock(&game_lock);
 	gcount++;
@@ -476,18 +483,21 @@ play(Client *c1, Client *c2)
 	
 	pthread_mutex_unlock(&game_lock);
 	
+	res[0] = pthread_create(c1->thread, nil, (void*)clienthandler, (void*)tdata[0]);
+	res[1] = pthread_create(c2->thread, nil, (void*)clienthandler, (void*)tdata[1]);
 	
-	
-	res[0] = pthread_create(c1->thread, NULL, (void*)clienthandler, (void*)tdata[0]);
-	res[1] = pthread_create(c2->thread, NULL, (void*)clienthandler, (void*)tdata[1]);
-	
-	dprint("play() tdata[1] {%d, %d}\n", tdata[1][0], tdata[1][1]);
-	dprint("play() tdata[0] {%d, %d}\n", tdata[0][0], tdata[0][1]);
+	dprint("play(): tdata[0] {%d, %d}\n", tdata[0][0], tdata[0][1]);
+	dprint("play(): tdata[1] {%d, %d}\n", tdata[1][0], tdata[1][1]);
 	
 	if(res[0] || res[1])
 		sysfatal("pthread_create() failed: %d\n", res[0] ? res[0] : res[1]);
-	else
-		dprint("threads for game %d are created\n", gcount);
+
+	dprint("play(): threads for game %d are created\n", gcount);	
+	
+	pthread_join(c1->thread, (void*)tmpbuf);
+	pthread_join(c2->thread, (void*)tmpbuf);
+	
+	dprint("play(): join'ed\n");
 }
 
 char*
