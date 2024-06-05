@@ -560,7 +560,6 @@ parseopts(int fd, char *opts)
 	return atoi(opts);
 }
 
-
 Client*
 newclient(char *in, int fd)
 {
@@ -598,8 +597,12 @@ newclient(char *in, int fd)
 void
 makematch(Client *c)
 {
-	Client *head = clients.l->data;
-	
+	Client *head;
+
+	if(clients.l == nil)
+		clients.l == llnew();
+
+	head = clients.l->data;
 	if(head == nil || c->side == head->side)
 	{
 		if(c->side == PRandom)
