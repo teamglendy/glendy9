@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "unix.h"
+#include "util.h"
 
 Point
 Pt(int x, int y)
