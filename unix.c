@@ -19,6 +19,7 @@ sysfatal(char *fmt, ...)
 
 	va_start(arg, fmt);
 	vfprintf(stderr, fmt, arg);
+	fprintf(stderr, "\n");
 	va_end(arg);
 
 	abort();
