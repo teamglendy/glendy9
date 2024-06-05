@@ -59,7 +59,6 @@ cleanup(int gid)
 static void
 printclients(char *fmt, ...)
 {
-	int i;
 	/* it seems arg gets changed during the first call to vprint, thus we need two */
 	va_list arg, arg2;
 	
@@ -273,8 +272,7 @@ proc_move(char *s)
 int
 proc(int player, char *s)
 {
-	char *t;
-	int oturn, n;
+	int oturn;
 
 	/* early return paths */
 	if(*s == '\0' || *s == 'q')
@@ -406,7 +404,7 @@ setgame(int gid)
 static void
 clienthandler(void *data)
 {
-	int res, gid, player;
+	int gid, player;
 	char *s;
 	Game *g;
 	
@@ -414,9 +412,7 @@ clienthandler(void *data)
 	player = ((int*)data)[1];
 	
 	dprint("clienthandler({%d, %d})\n", gid, player);
-	
-	g = (Game*)lookup(games, gid);
-	
+		
 	for(;;)
 	{
 		/* most of time is spent here */
@@ -432,7 +428,7 @@ clienthandler(void *data)
 		pthread_mutex_lock(&game_lock);
 		
 		loadgame(gid);
-		res = proc(player, s);
+		proc(player, s);
 		setgame(gid);
 		
 		pthread_mutex_unlock(&game_lock);
@@ -532,10 +528,9 @@ parsegame(int fd, char *game)
 	if(g == 0)
 		return g;
 	
-	die:
-		fprint(fd, "DIE invalid game: %d", g);
-		close(fd);
-		return -1;
+	fprint(fd, "DIE invalid game: %d", g);
+	close(fd);
+	return -1;
 }
 
 
@@ -548,10 +543,9 @@ parseside(int fd, char *side)
 	if(s == PGlenda || s == PTrapper || s == PRandom)
 		return s;
 	
-	die:
-		fprint(fd, "DIE invalid side: %d", s);
-		close(fd);
-		return -1;
+	fprint(fd, "DIE invalid side: %d", s);
+	close(fd);
+	return -1;
 }
 
 int
@@ -668,7 +662,7 @@ registerclient(void *clientfd)
 	cl = newclient(s, fd);
 	
 	if(cl != nil)
-		makematch(cl);/
+		makematch(cl);
 	die:
 		free(s);
 }
@@ -678,7 +672,7 @@ srv(int listenfd)
 {
 	int *clientfd;
 	socklen_t clilen;
-	struct sockaddr_in servaddr, clientaddr;
+	struct sockaddr_in clientaddr;
 	pthread_t t;
 	
 	for(;;)
