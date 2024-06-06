@@ -74,7 +74,7 @@ sprint(char *out, char *fmt, ...)
 int
 vfprint(int fd, char *fmt, va_list arg)
 {
-	char *s = (char*)emalloc(1024);
+	char *s = (char*)emalloc(128);
 	int n;
 
 	n = vsprint(s, fmt, arg);
