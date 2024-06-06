@@ -74,13 +74,12 @@ sprint(char *out, char *fmt, ...)
 int
 vfprint(int fd, char *fmt, va_list arg)
 {
-	char *s = (char*)emalloc(128);
+	char s[512];
 	int n;
 
 	n = vsprint(s, fmt, arg);
 	if(write(fd, s, n) < n)
 		perror("couldn't write");
-	free(s);
 	return n;
 }
 
