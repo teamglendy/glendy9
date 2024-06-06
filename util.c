@@ -210,7 +210,7 @@ qadd(Quene *q, void *data)
 	else
 	{
 		dprint("qadd(): q->head != nil || q->tail != nil\n");
-		lladd(q->tail, data);
+		llappend(q->first, data);
 		q->tail = q->tail->next;
 	}
 }
