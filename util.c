@@ -211,12 +211,14 @@ qadd(Quene *q, void *data)
 	q->len++;
 	if(q->head == nil && q->tail == nil)
 	{
+		dprint("qadd(): q->head == nil || q->tail == nil");
 		q->head = llnew();
 		q->head->data = data;
 		q->tail = q->head;
 	}
 	else
 	{
+		dprint("qadd(): q->head != nil || q->tail != nil");
 		lladd(q->tail, data);
 		q->tail = q->tail->next;
 	}
