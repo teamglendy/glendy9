@@ -149,22 +149,21 @@ llappend(List *first, void *data)
 
 	dprint("llappend(%p, %p)\n", first, data);
 
-
-	for(last = first; 
-	last->next != nil  && last != last->next; 
-	last = last->next)
-		;
 	
 	/* workaround for first entry */	
 	if(first->data == nil)
 		temp = first;
 	else
+	{
+		for(last = first;
+		last->next != nil  && last != last->next;
+		last = last->next)
+			;
 		temp = llnew();
-	
-	temp->data = data;
-
-	if(last != nil)
 		last->next = temp;
+	}
+
+	temp->data = data;
 }
 
 List*
@@ -202,16 +201,16 @@ qadd(Quene *q, void *data)
 	q->len++;
 	if(q->head == nil || q->tail == nil)
 	{
-		dprint("qadd(): q->head == nil && q->tail == nil\n");
+		dprint("qadd(): q->head == nil || q->tail == nil\n");
 		q->head = llnew();
 		q->head->data = data;
 		q->tail = q->head;
 	}
 	else
 	{
-		dprint("qadd(): q->head != nil || q->tail != nil\n");
-		llappend(q->first, data);
-		q->tail = q->tail->next;
+		dprint("qadd(): q->head != nil && q->tail != nil\n");
+		llappend(q->head, data);	
+		q->tail = (q->tail->next == nil) ? q->tail : q->tail->next;
 	}
 }
 
