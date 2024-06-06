@@ -327,12 +327,12 @@ input(int gid, int player)
 	Game *g;
 	
 	/* sang bozorg */
-	s = emalloc(1024);
-	memset(s, 0, 1024);
+	s = (char*)emalloc(INPUTSIZE);
+	memset(s, 0, INPUTSIZE);
 	
 	g = (Game*)lookup(games, gid);
 	/* we could use local variables, but that not worth the trouble */
-	while((c = read(g->sockfd[player], s+n, 1) == 1) && n < 1024)
+	while((c = read(g->sockfd[player], s+n, 1) == 1) && n < INPUTSIZE)
 	{
 		/* silently drop CR from CRLF */
 		if(s[n] == '\r')
@@ -433,6 +433,7 @@ clienthandler(void *data)
 		pthread_mutex_unlock(&game_lock);
 		free(s);
 	}
+	free(data);
 }
 static void
 play(Client *c1, Client *c2)
@@ -636,12 +637,12 @@ registerclient(void *clientfd)
 	dprint("registerclient(%d)\n", fd);
 	
 	/* sang bozorg */
-	s = emalloc(1024);
-	memset(s, 0, 1024);
+	s = (char*)emalloc(INPUTSIZE);
+	memset(s, 0, INPUTSIZE);
 	
 
 	/* we could use local variables, but that not worth the trouble */
-	while((c = read(fd, s+n, 1) == 1) && n < 1024)
+	while((c = read(fd, s+n, 1) == 1) && n < INPUTSIZE)
 	{
 		/* silently drop CR from CRLF */
 		if(s[n] == '\r')
