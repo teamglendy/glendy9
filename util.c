@@ -127,12 +127,19 @@ lladd(List *last, void *data)
 	if(last->next != nil)
 		return 0;
 	
-	temp = llnew();
+	/* first node? */
+	if(last->data == nil)
+		last->data = data;
+	else
+	{
+		dprint("lladd(): adding a new entry\n");
+		temp = llnew();
 	
-	last->next = temp;
-	temp->data = data;
-	
+		last->next = temp;
+		temp->data = data;
+	}
 	return 1;
+	
 }
 
 void
@@ -143,7 +150,9 @@ llappend(List *first, void *data)
 	dprint("llappend(%p, %p)\n", first, data);
 
 
-	for(last = first ; last->next != nil ; last = last->next)
+	for(last = first; 
+	last->next != nil  && last != last->next; 
+	last = last->next)
 		;
 	
 	/* workaround for first entry */	
@@ -184,6 +193,7 @@ lookup(List *l, int n)
 }
 
 /* quene */
+/*
 void
 qadd(Quene *q, void *data)
 {
@@ -191,22 +201,61 @@ qadd(Quene *q, void *data)
 	lladd(q->tail, data);
 	q->tail = q->tail->next;
 }
+*/
+
+void
+qadd(Quene *q, void *data)
+{	
+	dprint("qadd(%p, %p)\n", q, data);
+	
+	q->len++;
+	if(q->head == nil && q->tail == nil)
+	{
+		q->head = llnew();
+		q->head->data = data;
+		q->tail = q->head;
+	}
+	else
+	{
+		lladd(q->tail, data);
+		q->tail = q->tail->next;
+	}
+}
+
+/*
+void
+qnext(Quene *q)
+{
+	List *oldfirst;
+	if(q->len-- == 0)
+		sysfatal("qnext(): q->len == 0");
+	
+	oldfirst = q->head;
+	
+	// what??
+	if(q->head == nil)
+		q->head = q->head->next;
+	
+	if(q->tail == oldfirst)
+		q->tail->data = nil;
+		
+	free(oldfirst);
+}
+*/
 
 void
 qnext(Quene *q)
 {
-	List *oldfirst, *last;
-	if(q->len == 0)
-		sysfatal("qnext(): q->len == 0");
+	List *tmp;
+	if(q->head == nil)
+	    return;
+	
+	tmp = q->head;
+	q->head = q->head->next;
+	 
+	if(q->head == nil)
+	    q->tail = nil;
 	
 	q->len--;
-	
-	oldfirst = q->head;
-	q->head = q->head->next;
-	
-	if(q->tail == oldfirst)
-		q->tail = nil;
-		
-	free(oldfirst);
-	
+	free(tmp);
 }
