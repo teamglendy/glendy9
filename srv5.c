@@ -472,8 +472,8 @@ play(Client *c1, Client *c2)
 	c1->thread = (pthread_t*)emalloc(sizeof(pthread_t));
 	c2->thread = (pthread_t*)emalloc(sizeof(pthread_t));
 	
-	llappend(threads, c1->thread);
-	llappend(threads, c2->thread);
+//	llappend(threads, c1->thread);
+//	llappend(threads, c2->thread);
 	
 	pthread_mutex_unlock(&game_lock);
 	
@@ -592,13 +592,18 @@ makematch(Client *c)
 {
 	Client *head;
 
+	dprint("makematch(%p)\n", c);
 	pthread_mutex_lock(&game_lock);
-	if(clients.l == nil)
-		clients.l = llnew();
-
-	head = (Client*)clients.l->data;
-	if(head == nil || c->side == head->side)
+	if(clients.head == nil)
 	{
+		clients.head = llnew();
+		clients.tail = clients.head;
+
+	}
+	head = (Client*)clients.head->data;
+	if(clients.len == 0 || c->side == head->side)
+	{
+		/* head->side can never be PRandom anyway */
 		if(c->side == PRandom)
 			c->side = nrand(1) ? PTrapper : PGlenda;
 		
@@ -705,7 +710,9 @@ main(int argc, char **argv)
 	srand(time(nil));
 	
 	games = llnew();
-	clients.l = llnew();
+	clients.len = 0;
+	clients.head = llnew();
+	clients.tail = clients.head;
 	threads = llnew();
 	srv(listenfd);
 	
