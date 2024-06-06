@@ -36,6 +36,7 @@ enum
 	Playing,
 	Won,	
 	Lost,
+	Finished, /* for server */
 
 	Prev = 100,
 	Wall = 999,

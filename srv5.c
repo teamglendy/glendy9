@@ -54,6 +54,12 @@ cleanup(int gid)
 	shutdown(g->sockfd[1], SHUT_RDWR);
 	close(g->sockfd[0]);
 	close(g->sockfd[1]);
+	
+	if(g->state != Finished)
+		g->state = Finished;
+	else
+	/* we can't delete whole list because we need to update gid for rest of games too! */
+		free(g);
 }
 
 static void
@@ -331,6 +337,7 @@ input(int gid, int player)
 	memset(s, 0, INPUTSIZE);
 	
 	g = (Game*)lookup(games, gid);
+	
 	/* we could use local variables, but that not worth the trouble */
 	while((c = read(g->sockfd[player], s+n, 1) == 1) && n < INPUTSIZE)
 	{
@@ -344,7 +351,7 @@ input(int gid, int player)
 		}
 		n++;
 	}
-	if(!strcmp(s, ""))
+	if(strcmp(s, ""))
 		dprint("input(%d, %d): got input: 0x%x, %s\n", gid, player, *s, s);
 
 	return s;
@@ -417,12 +424,8 @@ clienthandler(void *data)
 		/* most of time is spent here */
 		s = input(gid, player);
 		
-
 		if(!strcmp(s, ""))
-		{
-			cleanup(gid);
 			break;
-		}
 		
 		pthread_mutex_lock(&game_lock);
 		
@@ -433,6 +436,7 @@ clienthandler(void *data)
 		pthread_mutex_unlock(&game_lock);
 		free(s);
 	}
+	cleanup(gid);
 	free(data);
 }
 static void
