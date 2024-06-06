@@ -506,6 +506,9 @@ parsenick(int fd, char *nick)
 		goto die;
 	}
 	
+	if(!strcmp(nick, "@"))
+		nick = "Guest";
+	
 	for(int i = 0 ; len > i ; i++)
 	{
 		if(!isalnum(nick[i]))
