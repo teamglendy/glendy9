@@ -125,11 +125,11 @@ lladd(List *last, void *data)
 	dprint("lladd(%p, %p)\n", last, data);
 	
 	if(last->next != nil)
+	{
+		dprint("lladd(): last->next != nil\n");
 		return 0;
+	}
 	
-	/* first node? */
-	if(last->data == nil)
-		last->data = data;
 	else
 	{
 		dprint("lladd(): adding a new entry\n");
@@ -193,15 +193,6 @@ lookup(List *l, int n)
 }
 
 /* quene */
-/*
-void
-qadd(Quene *q, void *data)
-{
-	q->len++;
-	lladd(q->tail, data);
-	q->tail = q->tail->next;
-}
-*/
 
 void
 qadd(Quene *q, void *data)
@@ -209,16 +200,16 @@ qadd(Quene *q, void *data)
 	dprint("qadd(%p, %p)\n", q, data);
 	
 	q->len++;
-	if(q->head == nil && q->tail == nil)
+	if(q->head == nil || q->tail == nil)
 	{
-		dprint("qadd(): q->head == nil || q->tail == nil");
+		dprint("qadd(): q->head == nil && q->tail == nil\n");
 		q->head = llnew();
 		q->head->data = data;
 		q->tail = q->head;
 	}
 	else
 	{
-		dprint("qadd(): q->head != nil || q->tail != nil");
+		dprint("qadd(): q->head != nil || q->tail != nil\n");
 		lladd(q->tail, data);
 		q->tail = q->tail->next;
 	}
@@ -249,8 +240,10 @@ void
 qnext(Quene *q)
 {
 	List *tmp;
+	
+	dprint("qnext(%p)\n", q);
 	if(q->head == nil)
-	    return;
+		return;
 	
 	tmp = q->head;
 	q->head = q->head->next;
