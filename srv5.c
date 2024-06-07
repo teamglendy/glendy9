@@ -29,6 +29,8 @@ int gcount = 0;
 int ccount = 0;
 int id = 0;
 
+// extern char *malloc_options;
+// malloc_options = "JX"
 pthread_mutex_t game_lock;
 
 List *games;
@@ -443,11 +445,11 @@ static void
 play(Client *c1, Client *c2)
 {
 	int res[2];
-	int *tdata[2];
+	int *tdata1, *tdata2;
 	Game *g;
 	
-	tdata[0] = (int*)emalloc(2 * sizeof(int));
-	tdata[1] = (int*)emalloc(2 * sizeof(int));
+	tdata1 = (int*)emalloc(2 * sizeof(int));
+	tdata2 = (int*)emalloc(2 * sizeof(int));
 	
 	pthread_mutex_lock(&game_lock);
 	gcount++;
@@ -468,11 +470,11 @@ play(Client *c1, Client *c2)
 	
 	sendlevel();
 
-	tdata[0][0] = gcount;
-	tdata[0][1] = 0;
+	tdata1[0] = gcount;
+	tdata1[1] = 0;
 	
-	tdata[1][0] = gcount;
-	tdata[1][1] = 1;
+	tdata2[0] = gcount;
+	tdata2[1] = 1;
 	
 	c1->thread = (pthread_t*)emalloc(sizeof(pthread_t));
 	c2->thread = (pthread_t*)emalloc(sizeof(pthread_t));
@@ -482,11 +484,11 @@ play(Client *c1, Client *c2)
 	
 	pthread_mutex_unlock(&game_lock);
 	
-	res[0] = pthread_create(c1->thread, nil, (void*)clienthandler, (void*)tdata[0]);
-	res[1] = pthread_create(c2->thread, nil, (void*)clienthandler, (void*)tdata[1]);
+	res[0] = pthread_create(c1->thread, nil, (void*)clienthandler, (void*)tdata1);
+	res[1] = pthread_create(c2->thread, nil, (void*)clienthandler, (void*)tdata2);
 	
-	dprint("play(): tdata[0] {%d, %d}\n", tdata[0][0], tdata[0][1]);
-	dprint("play(): tdata[1] {%d, %d}\n", tdata[1][0], tdata[1][1]);
+	dprint("play(): tdata[0] {%d, %d}\n", tdata1[0], tdata1[1]);
+	dprint("play(): tdata[1] {%d, %d}\n", tdata2[0], tdata2[1]);
 	
 	if(res[0] || res[1])
 		sysfatal("pthread_create() failed: %d\n", res[0] ? res[0] : res[1]);
