@@ -52,16 +52,24 @@ cleanup(int gid)
 	dprint("cleanup(%d)\n", gid);
 	
 	g = (Game*)lookup(games, gid);
-	shutdown(g->sockfd[0], SHUT_RDWR);
-	shutdown(g->sockfd[1], SHUT_RDWR);
-	close(g->sockfd[0]);
-	close(g->sockfd[1]);
 	
 	if(g->state != Finished)
+	{
 		g->state = Finished;
+		shutdown(g->sockfd[0], SHUT_RDWR);
+		shutdown(g->sockfd[1], SHUT_RDWR);
+		close(g->sockfd[0]);
+		close(g->sockfd[1]);
+	}
 	else
+	{
 	/* we can't delete whole list because we need to update gid for rest of games too! */
+		free(g->clients[0]->nick);
+		free(g->clients[0]);
+		free(g->clients[1]->nick);
+		free(g->clients[1]);
 		free(g);
+	}
 }
 
 static void
@@ -328,20 +336,18 @@ proc(int player, char *s)
 }
 
 static char*
-input(int gid, int player)
+rawinput(int fd)
 {
+
 	char *s, c;
 	int n = 0;
-	Game *g;
 	
 	/* sang bozorg */
 	s = (char*)emalloc(INPUTSIZE);
 	memset(s, 0, INPUTSIZE);
 	
-	g = (Game*)lookup(games, gid);
-	
 	/* we could use local variables, but that not worth the trouble */
-	while((c = read(g->sockfd[player], s+n, 1) == 1) && n < INPUTSIZE)
+	while((c = read(fd, s+n, 1) == 1) && n < INPUTSIZE)
 	{
 		/* silently drop CR from CRLF */
 		if(s[n] == '\r')
@@ -354,8 +360,22 @@ input(int gid, int player)
 		n++;
 	}
 	if(strcmp(s, ""))
-		dprint("input(%d, %d): got input: 0x%x, %s\n", gid, player, *s, s);
+		dprint("rawinput(%d): got input: 0x%x, %s\n", fd, *s, s);
 
+	return s;
+
+}
+
+static char*
+input(int gid, int player)
+{
+	char *s;
+	Game *g;
+	
+	g = (Game*)lookup(games, gid);
+	s = rawinput(g->sockfd[player]);
+	g->clients[player]->lastseen = time(nil);
+	
 	return s;
 }
 
@@ -438,6 +458,7 @@ clienthandler(void *data)
 		pthread_mutex_unlock(&game_lock);
 		free(s);
 	}
+
 	cleanup(gid);
 	free(data);
 }
@@ -478,6 +499,9 @@ play(Client *c1, Client *c2)
 	
 	c1->thread = (pthread_t*)emalloc(sizeof(pthread_t));
 	c2->thread = (pthread_t*)emalloc(sizeof(pthread_t));
+	
+	g->clients[0] = c1;
+	g->clients[1] = c2;
 	
 //	llappend(threads, c1->thread);
 //	llappend(threads, c2->thread);
@@ -585,6 +609,8 @@ newclient(char *in, int fd)
 	c->game = parsegame(fd, game);	
 	c->side = parseside(fd, side);
 	c->opts = parseopts(fd, opts);
+	c->firstseen = time(nil);
+	c->lastseen = c->firstseen;
 	
 	if(c->nick == nil || c->game == -1 || c->side == -1)
 	{
@@ -597,15 +623,17 @@ newclient(char *in, int fd)
 	return c;
 }
 
-void
+int
 makematch(Client *c)
 {
 	Client *head;
 
 	dprint("makematch(%p)\n", c);
 	pthread_mutex_lock(&game_lock);
+	
 	if(clients.head == nil)
 	{
+		dprint("clients.head == nil\n");
 		clients.head = llnew();
 		clients.tail = clients.head;
 
@@ -616,10 +644,10 @@ makematch(Client *c)
 		/* head->side can never be PRandom anyway */
 		if(c->side == PRandom)
 			c->side = nrand(1) ? PTrapper : PGlenda;
-		
 		qadd(&clients, c);
 		pthread_mutex_unlock(&game_lock);
 		fprint(c->fd, "WAIT\n");
+		return 0;
 	}
 	else
 	{
@@ -627,11 +655,15 @@ makematch(Client *c)
 			c->side = (head->side == PGlenda) ? PTrapper : PGlenda;
 		
 		qnext(&clients);
+//		if(!isonline(head))
+//			goto loop;
+			
 		pthread_mutex_unlock(&game_lock);
 		if(c->side == PTrapper)
 			play(c, head);
 		else
 			play(head, c);
+		return 1;
 	}
 }
 
