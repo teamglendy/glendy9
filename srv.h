@@ -27,5 +27,5 @@ typedef struct
 	int sockfd[2];
 	int grid[SzX][SzY];
 	char syncmsg[8];
-	Client clients[2];
+	Client *clients[2];
 }Game;
