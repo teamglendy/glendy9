@@ -159,11 +159,15 @@ netproc(Netmsg *msg, char *in)
 				sysfatal("invalid conn");
 		}
 	}
+	else if(!strcmp(tokens[0], "UGUD"))
+		fprint(srvfd, "y\n");
+
 	else if(!strcmp(tokens[0], "WAIT"))
 		waitbit = 1;
 
 	else if(!strcmp(tokens[0], "INIT"))
 	{
+		dprint("INIT XXX in INIT\n");
 		state = Init;
 		while(state == Init)
 		{
@@ -204,6 +208,7 @@ netproc(Netmsg *msg, char *in)
 				
 			}
 		}
+	dprint("XXX INIT: state = %d\n", state);
 	}
 	else if(!strcmp(tokens[0], "SENT"))
 		/* sent is handled in INIT */
@@ -211,17 +216,7 @@ netproc(Netmsg *msg, char *in)
 	
 	else if(!strcmp(tokens[0], "TURN"))
 		waitbit = 0;
-	
-	else if(!strcmp(tokens[0], "WALL"))
-	{
-		msg->err = Wall;
-		waitbit = 0;
-	}
-	else if(!strcmp(tokens[0], "GLND"))
-	{
-		msg->err = Glenda;
-		waitbit = 0;
-	}
+
 	else if(!strcmp(tokens[0], "SYNC"))
 	{
 		if(state == Start)
@@ -257,9 +252,10 @@ netproc(Netmsg *msg, char *in)
 	
 	else if(!strcmp(tokens[0], "LOST"))
 		state = Lost;
-	
+	else if(!strcmp(tokens[0], ""))
+		state = Finished;
 	else 
-		sysfatal("netproc(): unkown message");
+		sysfatal("netproc(): unkown message: 0x%x %s", *tokens[0], tokens[0]);
 }
 
 char*
@@ -281,16 +277,37 @@ netread(void)
 	return s;
 }
 
+void
+netinit(void)
+{
+	Netmsg *msg;
+	char *s;
+
+	msg = (Netmsg*)emalloc(sizeof(Netmsg));
+
+	state = Connect;
+	nethi(pnick, 0, pside, 0);
+	
+	for(;;)
+	{
+		s = netread();
+		netproc(msg, s);
+
+		dprint("msg->tokens[0]: %s\n", msg->tokens[0]);
+
+		if(msg->tokens[0] != nil && !strcmp(msg->tokens[0], "INIT"))
+			break;
+		free(s);
+	}
+	free(s);
+}
+
 Netmsg*
 netmain(void)
 {
 	Netmsg *msg;
 	char *s;
-	msg = malloc(sizeof(Netmsg));
-
-	if(state == Connect)
-	//	nethi(pnick, pgame, pside, popts);
-		nethi(pnick, 0, pside, 0);
+	msg = (Netmsg*)emalloc(sizeof(Netmsg));
 	
 	s = netread();
 	netproc(msg, s);
