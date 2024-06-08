@@ -16,4 +16,5 @@ extern int popts;
 int netmove(int dir);
 int netput(int x, int y);
 char* netread(void);
+void netinit(void);
 Netmsg* netmain(void);
