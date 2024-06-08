@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <ctype.h>
+#include <signal.h>
 
 #include "unix.h"
 #include "engine.h"
@@ -20,7 +21,7 @@
 #include "srv.h"
 
 int listenfd;
-int port = 1768;
+int port = 1769;
 int debug = 1;
 
 char syncmsg[8];
@@ -53,6 +54,8 @@ cleanup(int gid)
 	
 	g = (Game*)lookup(games, gid);
 	
+	if(g == nil)
+		return;
 	if(g->state != Finished)
 	{
 		g->state = Finished;
@@ -69,6 +72,7 @@ cleanup(int gid)
 		free(g->clients[1]->nick);
 		free(g->clients[1]);
 		free(g);
+		g = nil;
 	}
 }
 
@@ -474,11 +478,15 @@ play(Client *c1, Client *c2)
 	
 	pthread_mutex_lock(&game_lock);
 	gcount++;
-	
+
 	sockfd[0] = c1->fd;
 	sockfd[1] = c2->fd;
 
+	c1->state = Init;
+	c2->state = Init;
+
 	g = (Game*)emalloc(sizeof(Game));
+
 	llappend(games, g);
 	initlevel();
 	setgame(gcount);
@@ -532,6 +540,7 @@ parsenick(int fd, char *nick)
 		goto die;
 	}
 	
+	/* this is wrong, but we run strdup anyway */
 	if(!strcmp(nick, "@"))
 		nick = "Guest";
 	
@@ -611,7 +620,8 @@ newclient(char *in, int fd)
 	c->opts = parseopts(fd, opts);
 	c->firstseen = time(nil);
 	c->lastseen = c->firstseen;
-	
+	c->state = Connect;
+
 	if(c->nick == nil || c->game == -1 || c->side == -1)
 	{
 		free(c);
@@ -623,6 +633,35 @@ newclient(char *in, int fd)
 	return c;
 }
 
+
+void
+checkquene(void)
+{
+	Client *c;
+	long t;
+
+	t = time(nil);
+
+	dprint("checkquene(%d)\n", t);
+
+	if(clients.len == 0)
+		return;
+
+	for(List *l = clients.head ; l != nil ; l = l->next)
+	{
+		c = (Client*)l->data;
+		if(c->lastseen + TIMEOUT < t)
+		{
+			dprint("checkquene(): found match t: %d lastseen: %d nick: %s fd: %d\n",
+			t, c->lastseen, c->nick, c->fd);
+			free(c->nick);
+		//	free(c->thread);
+			qdel(&clients, l);
+			free(c);
+		}
+	}
+}
+
 int
 makematch(Client *c)
 {
@@ -631,6 +670,8 @@ makematch(Client *c)
 	dprint("makematch(%p)\n", c);
 	pthread_mutex_lock(&game_lock);
 	
+	checkquene();
+
 	if(clients.head == nil)
 	{
 		dprint("clients.head == nil\n");
@@ -664,6 +705,30 @@ makematch(Client *c)
 		else
 			play(head, c);
 		return 1;
+	}
+}
+
+void
+keepalive(Client *c)
+{
+	char *s;
+
+	while(c->state == Connect)
+	{
+		fprint(c->fd, "UGUD\n");
+		s = rawinput(c->fd);
+		if(!strcmp(s, "y"))
+			c->lastseen = time(nil);
+		else
+		{
+			dprint("keepalive(): rude client %d sent me %s!!11\n", c->fd, s);
+			if(strcmp(s, "") != 0)
+				fprint(c->fd, "DIE rude\n");
+			c->lastseen = 0;
+			break;
+		}
+		free(s);
+		sleep(TIMEOUT);
 	}
 }
 
@@ -708,7 +773,11 @@ registerclient(void *clientfd)
 	cl = newclient(s, fd);
 	
 	if(cl != nil)
-		makematch(cl);
+	{
+		if(!makematch(cl))
+			keepalive(cl);
+	}
+		
 	die:
 		free(s);
 }
@@ -720,7 +789,7 @@ srv(int listenfd)
 	socklen_t clilen;
 	struct sockaddr_in clientaddr;
 	pthread_t t;
-	
+
 	for(;;)
 	{
 		listen(listenfd, 64);
@@ -738,6 +807,7 @@ srv(int listenfd)
 	}
 }
 
+
 int 
 main(int argc, char **argv)
 {
@@ -747,7 +817,8 @@ main(int argc, char **argv)
 	
 	listenfd = setuplistener(port);
 	pthread_mutex_init(&game_lock, NULL);
-	
+	signal(SIGPIPE, SIG_IGN);
+
 	/* OpenBSD ignores this */
 	srand(time(nil));
 	
