@@ -5,6 +5,7 @@
 #include "netclient.h"
 #include "engine.h"
 
+
 Font *font;
 
 Image	*gl;	/* glenda */
@@ -319,13 +320,6 @@ main(int argc, char **argv)
 	if(initdraw(nil, nil, "glendy") < 0)
 		sysfatal("initdraw failed: %r");
 	einit(Emouse);
-
-	if(server != nil && networked)
-	{
-		srvfd = dial(server, nil, nil, nil);
-		if(srvfd < 0)
-			sysfatal("unable to connect: %r");
-	}
 	
 	resize();
 
@@ -333,86 +327,95 @@ main(int argc, char **argv)
 
 	allocimages();
 
-	if(networked)
+	if(server != nil && networked)
 	{
-		netmain(); /* CONN */
-		netmain(); /* SYNC */
-		netmain(); /* TURN/WAIT */
+		srvfd = dial(server, nil, nil, nil);
+		if(srvfd < 0)
+			sysfatal("unable to connect: %r");
+
+		netinit();
+		drawlevel();
 	}
 	else
 		initlevel();	/* must happen before "eresized" */
+
 	eresized(0);
 	for(;;)
 	{
+	//	fprint(2, "XXX %d\n", state);
 		if(networked && waitbit && isplaying)
 		{
 			msg = netmain();
 			if(msg->tokens[0] != nil && strcmp(msg->tokens[0], "SYNC"))
 				drawlevel();
 		}
-		e = event(&ev);
-		switch(e)
+		else
 		{
-			case Emouse:
-				m = ev.mouse;
-				if(m.buttons == 0)
-				{
-					if(mousedown && isplaying)
+			e = event(&ev);
+			switch(e)
+			{
+				case Emouse:
+					m = ev.mouse;
+					if(m.buttons == 0)
 					{
-						mousedown = 0;
-						if(turn % 2 == 0)
-							put(m.xy);
-						else
-							move(m.xy);
-						if(!networked)
-							drawlevel();
+						if(mousedown && isplaying)
+						{
+							mousedown = 0;
+							if(turn % 2 == 0)
+								put(m.xy);
+							else
+								move(m.xy);
+							if(!networked)
+								drawlevel();
+						}
 					}
-				}
-				if(m.buttons&1)
-				{
-					mousedown = 1;
-				}
-				if(m.buttons&2)
-				{
-					switch(emenuhit(2, &m, &mmenu))
+					if(m.buttons&1)
 					{
-					case 0:
-						difficulty = DEasy;
-						initlevel();
-						break;
-					case 1:				
-						difficulty = DMed;
-						initlevel();
-						break;
-					case 2:
-						difficulty = DHard;
-						initlevel();
-						break;
-					case 3:
-						difficulty = DImp;
-						initlevel();
-						break;
+						mousedown = 1;
 					}
-					drawlevel();
-				}
-				if(m.buttons&4) {
-					switch(emenuhit(3, &m, &rmenu))
+					if(m.buttons&2)
 					{
-						case New:
+						switch(emenuhit(2, &m, &mmenu))
+						{
+						case 0:
+							difficulty = DEasy;
 							initlevel();
 							break;
-						case Undo:
-							undo();
+						case 1:				
+							difficulty = DMed;
+							initlevel();
 							break;
-						case Restart:
-							restart();
+						case 2:
+							difficulty = DHard;
+							initlevel();
 							break;
-						case Exit:
-							exits(nil);
+						case 3:
+							difficulty = DImp;
+							initlevel();
+							break;
+						}
+						drawlevel();
 					}
-					drawlevel();
-				}
-				break;
+					if(m.buttons&4)
+					{
+						switch(emenuhit(3, &m, &rmenu))
+						{
+							case New:
+								initlevel();
+								break;
+							case Undo:
+								undo();
+								break;
+							case Restart:
+								restart();
+								break;
+							case Exit:
+								exits(nil);
+						}
+						drawlevel();
+					}
+					break;
 			}
+		}
 	}
 }
