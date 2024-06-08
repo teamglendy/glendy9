@@ -1,5 +1,6 @@
 #define playersock sockfd[turn % 2]
 #define INPUTSIZE 32
+#define TIMEOUT 30
 
 extern int id;
 extern int sockfd[2];
