@@ -137,9 +137,8 @@ lladd(List *last, void *data)
 	
 		last->next = temp;
 		temp->data = data;
+		return 1;
 	}
-	return 1;
-	
 }
 
 void
@@ -252,4 +251,39 @@ qnext(Quene *q)
 	
 	q->len--;
 	free(tmp);
+}
+
+/* we don't free items, free stuff elsewhere */
+void
+qdel(Quene *q, List *item)
+{
+	List *prev = nil, *next = nil;
+
+	if(q->len == 0 || item == nil
+	|| q->head == nil || q->tail == nil)
+		return;
+
+	
+	/* we can't use lldel, because we can't update q->tail if l == q->tail */
+	for(List *t = q->head;
+	t->next != nil  && t != t->next;
+	t = t->next)
+	{
+		/* maybe we should use memcmp */
+		if(t == item)
+		{
+		next = t->next;
+
+		/* these may be nil and that's fine */
+		if(item == q->head)
+			q->head = q->head->next;
+		if(item == q->tail)
+			q->tail = q->tail->next;
+
+		if(prev != nil)
+			prev->next = next;
+		}
+
+		prev = t;
+	}
 }
