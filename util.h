@@ -28,3 +28,4 @@ void* lookup(List *l, int n);
 /* quene */
 void qadd(Quene *q, void *data);
 void qnext(Quene *q);
+void qdel(Quene *q, List *item);
