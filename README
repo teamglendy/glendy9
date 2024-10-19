@@ -1,4 +1,4 @@
-This is a improved version of games/glendy, also known as trap the cat game.
+This is a improved version of `games/glendy`, also known as trap the cat game.
 
 the goal of the game is to either escape the trapper,
 or manage to block the bunny (also known as glenda);
@@ -13,9 +13,10 @@ new features:
 
 game logic is seprated from client details and interface,
 and can be found on engine.[ch], there are also some portablity code
-in unix.c.
+in `unix.c`.
 
-cli.c and gui9.c contain clients, there is also a server in srv.c,
-neither of clients currently support networked multiplayer mode.
+`cli.c` and `gui9.c` contain clients, there is also a server in `srv.c` (also `srv4.c`, `srv5.c`),
+cli client current doesn't support networked mode, because i'm too lazy
+to implement networking in a portable manner between UNIX and plan 9.
 
 there are some documention of engine details and networked protocol in doc.
